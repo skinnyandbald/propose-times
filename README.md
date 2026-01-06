@@ -105,7 +105,9 @@ Choose your calendar provider in extension preferences:
 
 ## One-Click Booking (Optional)
 
-By default, time slots link to your SavvyCal or Cal.com page. For true one-click booking (click → enter name/email → booked), you can deploy a small companion app.
+By default, time slots link to your SavvyCal or Cal.com page for that day—but the recipient still has to find and click the specific time slot. Neither service supports pre-selecting a time via URL.
+
+With the companion app, clicking a time opens a simple form with that slot pre-filled—enter name/email, submit, done:
 
 ### What's Vercel?
 
