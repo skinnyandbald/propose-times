@@ -1,10 +1,12 @@
 {
   "name": "propose-times",
   "title": "Propose Times",
-  "description": "Generate meeting time proposals from your SavvyCal availability",
+  "description": "Generate meeting time proposals from your SavvyCal or Cal.com availability",
   "icon": "extension-icon.png",
   "author": "ben",
-  "categories": ["Productivity"],
+  "categories": [
+    "Productivity"
+  ],
   "license": "MIT",
   "commands": [
     {
@@ -16,28 +18,59 @@
   ],
   "preferences": [
     {
+      "name": "provider",
+      "type": "dropdown",
+      "required": true,
+      "title": "Calendar Provider",
+      "description": "Which scheduling service to use",
+      "default": "savvycal",
+      "data": [
+        {
+          "title": "SavvyCal",
+          "value": "savvycal"
+        },
+        {
+          "title": "Cal.com",
+          "value": "calcom"
+        }
+      ]
+    },
+    {
       "name": "savvycalToken",
       "type": "password",
-      "required": true,
+      "required": false,
       "title": "SavvyCal API Token",
-      "description": "Your SavvyCal Personal Access Token (starts with pt_secret_)",
+      "description": "Your SavvyCal Personal Access Token (starts with pt_secret_). Required if using SavvyCal.",
       "placeholder": "pt_secret_..."
     },
     {
       "name": "savvycalLink",
       "type": "textfield",
-      "required": true,
+      "required": false,
       "title": "SavvyCal Link Slug",
-      "description": "The slug from your SavvyCal URL (e.g., 'chat' from savvycal.com/skinnyandbald/chat)",
+      "description": "The slug from your SavvyCal URL (e.g., 'chat' from savvycal.com/you/chat). Required if using SavvyCal.",
       "default": "chat"
     },
     {
       "name": "savvycalUsername",
       "type": "textfield",
-      "required": true,
+      "required": false,
       "title": "SavvyCal Username",
-      "description": "Your SavvyCal username (e.g., 'skinnyandbald')",
-      "default": "skinnyandbald"
+      "description": "Your SavvyCal username (e.g., 'skinnyandbald'). Required if using SavvyCal."
+    },
+    {
+      "name": "calcomUsername",
+      "type": "textfield",
+      "required": false,
+      "title": "Cal.com Username",
+      "description": "Your Cal.com username (e.g., 'skinnyandbald' from cal.com/skinnyandbald/...). Required if using Cal.com."
+    },
+    {
+      "name": "calcomEventSlug",
+      "type": "textfield",
+      "required": false,
+      "title": "Cal.com Event Slug",
+      "description": "The event type slug (e.g., 'pow-wow' from cal.com/you/pow-wow). Required if using Cal.com."
     },
     {
       "name": "defaultTimezone",
@@ -47,15 +80,42 @@
       "description": "Default timezone for the person you're proposing times to",
       "default": "America/New_York",
       "data": [
-        { "title": "Eastern (EST/EDT)", "value": "America/New_York" },
-        { "title": "Central (CST/CDT)", "value": "America/Chicago" },
-        { "title": "Mountain (MST/MDT)", "value": "America/Denver" },
-        { "title": "Pacific (PST/PDT)", "value": "America/Los_Angeles" },
-        { "title": "UTC", "value": "UTC" },
-        { "title": "London (GMT/BST)", "value": "Europe/London" },
-        { "title": "Paris (CET/CEST)", "value": "Europe/Paris" },
-        { "title": "Tokyo (JST)", "value": "Asia/Tokyo" },
-        { "title": "Sydney (AEST/AEDT)", "value": "Australia/Sydney" }
+        {
+          "title": "Eastern (EST/EDT)",
+          "value": "America/New_York"
+        },
+        {
+          "title": "Central (CST/CDT)",
+          "value": "America/Chicago"
+        },
+        {
+          "title": "Mountain (MST/MDT)",
+          "value": "America/Denver"
+        },
+        {
+          "title": "Pacific (PST/PDT)",
+          "value": "America/Los_Angeles"
+        },
+        {
+          "title": "UTC",
+          "value": "UTC"
+        },
+        {
+          "title": "London (GMT/BST)",
+          "value": "Europe/London"
+        },
+        {
+          "title": "Paris (CET/CEST)",
+          "value": "Europe/Paris"
+        },
+        {
+          "title": "Tokyo (JST)",
+          "value": "Asia/Tokyo"
+        },
+        {
+          "title": "Sydney (AEST/AEDT)",
+          "value": "Australia/Sydney"
+        }
       ]
     },
     {
@@ -71,7 +131,7 @@
       "type": "textfield",
       "required": false,
       "title": "Booker URL",
-      "description": "URL of your savvycal-booker Vercel deployment (enables one-click booking). Leave empty to link directly to SavvyCal.",
+      "description": "URL of your booker Vercel deployment (enables one-click booking for both providers). Leave empty to link directly to the calendar provider.",
       "placeholder": "https://your-app.vercel.app"
     }
   ],
@@ -87,13 +147,16 @@
     "@types/react": "18.2.27",
     "eslint": "^8.51.0",
     "prettier": "^3.0.3",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "vitest": "^4.0.16"
   },
   "scripts": {
     "build": "ray build -e dist",
     "dev": "ray develop",
     "fix-lint": "ray lint --fix",
     "lint": "ray lint",
-    "publish": "npx @raycast/api@latest publish"
+    "publish": "npx @raycast/api@latest publish",
+    "test": "vitest",
+    "test:run": "vitest run"
   }
 }

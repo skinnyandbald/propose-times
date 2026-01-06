@@ -12,38 +12,22 @@ import {
 import { useState, useEffect } from "react";
 import { format, addDays } from "date-fns";
 import { formatInTimeZone, utcToZonedTime } from "date-fns-tz";
+import { getProvider } from "./providers";
+import type { ProviderType, ProviderConfig, TimeSlot, LinkInfo } from "./types";
 
 interface Preferences {
-  savvycalToken: string;
-  savvycalLink: string;
-  savvycalUsername: string;
+  provider: ProviderType;
+  // SavvyCal
+  savvycalToken?: string;
+  savvycalLink?: string;
+  savvycalUsername?: string;
+  // Cal.com
+  calcomUsername?: string;
+  calcomEventSlug?: string;
+  // Common
   defaultTimezone: string;
   defaultDaysAhead: string;
   bookerUrl?: string;
-}
-
-interface TimeSlot {
-  start_at: string;
-  end_at: string;
-  duration?: number;
-  rank?: number;
-}
-
-interface SavvyCalSlotsResponse {
-  data: TimeSlot[];
-}
-
-interface SchedulingLink {
-  id: string;
-  slug: string;
-  name: string;
-  durations?: number[];
-  default_duration?: number;
-}
-
-interface SavvyCalLinksResponse {
-  data?: SchedulingLink[];
-  entries?: SchedulingLink[];
 }
 
 const TIMEZONES = [
@@ -63,117 +47,13 @@ function getTimezoneAbbr(tzValue: string): string {
   return tz?.abbr || tzValue;
 }
 
-interface LinkInfo {
-  id: string;
-  durations: number[];
-  defaultDuration: number;
-}
-
-async function fetchLinkInfo(token: string, slug: string): Promise<LinkInfo> {
-  const response = await fetch("https://api.savvycal.com/v1/links", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  const responseText = await response.text();
-  console.log("SavvyCal /v1/links response:", response.status, responseText);
-
-  if (!response.ok) {
-    throw new Error(
-      `SavvyCal API error fetching links: ${response.status} - ${responseText}`,
-    );
-  }
-
-  let data: SavvyCalLinksResponse;
-  try {
-    data = JSON.parse(responseText) as SavvyCalLinksResponse;
-  } catch {
-    throw new Error(`Invalid JSON from SavvyCal: ${responseText}`);
-  }
-
-  console.log("Parsed links data:", JSON.stringify(data, null, 2));
-
-  // SavvyCal API returns { metadata: {...}, entries: [...] }
-  const links =
-    data.entries || data.data || (data as unknown as SchedulingLink[]);
-  const link = Array.isArray(links) ? links.find((l) => l.slug === slug) : null;
-
-  if (!link) {
-    const availableSlugs = Array.isArray(links)
-      ? links.map((l) => l.slug).join(", ")
-      : "unknown structure";
-    throw new Error(
-      `No scheduling link found with slug "${slug}". Available: ${availableSlugs || "none"}`,
-    );
-  }
-
+function getProviderConfig(preferences: Preferences): ProviderConfig {
   return {
-    id: link.id,
-    durations: link.durations || [30],
-    defaultDuration: link.default_duration || 30,
-  };
-}
-
-interface FetchSlotsResult {
-  slots: TimeSlot[];
-  linkId: string;
-  durations: number[];
-  defaultDuration: number;
-}
-
-async function fetchAvailableSlots(
-  token: string,
-  linkSlug: string,
-  startDate: Date,
-  endDate: Date,
-): Promise<FetchSlotsResult> {
-  const linkInfo = await fetchLinkInfo(token, linkSlug);
-  const linkId = linkInfo.id;
-
-  // SavvyCal requires ISO-8601 timestamps in UTC (e.g., 2024-01-20T00:00:00Z)
-  const fromDate = new Date(startDate);
-  fromDate.setHours(0, 0, 0, 0);
-  const toDate = new Date(endDate);
-  toDate.setHours(23, 59, 59, 999);
-
-  const response = await fetch(
-    `https://api.savvycal.com/v1/links/${linkId}/slots?from=${fromDate.toISOString()}&to=${toDate.toISOString()}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    },
-  );
-
-  const responseText = await response.text();
-  console.log(
-    "SavvyCal slots response:",
-    response.status,
-    responseText.substring(0, 500),
-  );
-
-  if (!response.ok) {
-    throw new Error(`SavvyCal API error: ${response.status} - ${responseText}`);
-  }
-
-  let data;
-  try {
-    data = JSON.parse(responseText);
-  } catch {
-    throw new Error(`Invalid JSON from SavvyCal slots: ${responseText}`);
-  }
-
-  // Handle response: direct array OR { data: [...] } OR { entries: [...] }
-  const slots = Array.isArray(data) ? data : data.data || data.entries || [];
-  console.log("Parsed slots count:", slots.length);
-  return {
-    slots,
-    linkId,
-    durations: linkInfo.durations,
-    defaultDuration: linkInfo.defaultDuration,
+    savvycalToken: preferences.savvycalToken,
+    savvycalLink: preferences.savvycalLink,
+    savvycalUsername: preferences.savvycalUsername,
+    calcomUsername: preferences.calcomUsername,
+    calcomEventSlug: preferences.calcomEventSlug,
   };
 }
 
@@ -184,9 +64,9 @@ function groupSlotsByDay(
   const grouped = new Map<string, TimeSlot[]>();
 
   for (const slot of slots) {
-    if (!slot.start_at) continue; // Skip invalid slots
+    if (!slot.start_at) continue;
     const slotDate = new Date(slot.start_at);
-    if (isNaN(slotDate.getTime())) continue; // Skip invalid dates
+    if (isNaN(slotDate.getTime())) continue;
 
     const zonedDate = utcToZonedTime(slotDate, timezone);
     const dayKey = format(zonedDate, "yyyy-MM-dd");
@@ -208,43 +88,17 @@ function formatSlotTime(slot: TimeSlot, timezone: string): string {
   ).toLowerCase();
 }
 
-function generateSlotDeepLink(
-  username: string,
-  linkSlug: string,
-  linkId: string,
-  slot: TimeSlot,
-  timezone: string,
-  bookerUrl?: string,
-  duration: number = 30,
-): string {
-  const slotDate = new Date(slot.start_at);
-
-  // If booker URL is configured, use one-click booking
-  if (bookerUrl) {
-    const params = new URLSearchParams({
-      slot: slotDate.toISOString(),
-      link_id: linkId,
-      duration: duration.toString(),
-      tz: timezone,
-    });
-    return `${bookerUrl}/book?${params.toString()}`;
-  }
-
-  // Fallback: SavvyCal only supports 'from' param to jump to a date (not pre-select a slot)
-  const dateStr = format(slotDate, "yyyy-MM-dd");
-  return `https://savvycal.com/${username}/${linkSlug}?from=${dateStr}&time_zone=${encodeURIComponent(timezone)}`;
-}
-
 function generateMessage(
   slots: TimeSlot[],
   timezone: string,
   clickableSlots: boolean,
-  username: string,
-  linkSlug: string,
-  linkId: string,
+  providerType: ProviderType,
+  config: ProviderConfig,
+  linkInfo: LinkInfo,
   duration: number,
   bookerUrl?: string,
 ): string {
+  const provider = getProvider(providerType);
   const tzAbbr = getTimezoneAbbr(timezone);
   const groupedSlots = groupSlotsByDay(slots, timezone);
 
@@ -268,10 +122,9 @@ function generateMessage(
     const slotStrings = displaySlots.map((slot) => {
       const timeStr = formatSlotTime(slot, timezone);
       if (clickableSlots) {
-        const link = generateSlotDeepLink(
-          username,
-          linkSlug,
-          linkId,
+        const link = provider.generateBookingUrl(
+          config,
+          linkInfo,
           slot,
           timezone,
           bookerUrl,
@@ -289,7 +142,7 @@ function generateMessage(
   lines.push(
     `Feel free to use this booking page if that's easier (also contains more availabilities):`,
   );
-  lines.push(`https://savvycal.com/${username}/${linkSlug}`);
+  lines.push(provider.getFallbackUrl(config));
 
   return lines.join("\n");
 }
@@ -304,6 +157,9 @@ function normalizeDate(d: Date): Date {
 export default function Command() {
   const preferences = getPreferenceValues<Preferences>();
   const defaultDays = parseInt(preferences.defaultDaysAhead) || 10;
+  const providerType = preferences.provider || "savvycal";
+  const provider = getProvider(providerType);
+  const config = getProviderConfig(preferences);
 
   // Fresh dates on every render
   const today = normalizeDate(new Date());
@@ -316,27 +172,27 @@ export default function Command() {
   const [isLoading, setIsLoading] = useState(false);
   const [durations, setDurations] = useState<number[]>([25, 30, 45, 60]);
   const [selectedDuration, setSelectedDuration] = useState<string>("25");
+  const [linkInfo, setLinkInfo] = useState<LinkInfo | null>(null);
 
   // Fetch link info to get available durations
   useEffect(() => {
     const loadLinkInfo = async () => {
       try {
-        const linkInfo = await fetchLinkInfo(
-          preferences.savvycalToken,
-          preferences.savvycalLink,
-        );
-        setDurations(linkInfo.durations);
+        // Use a small date range just to get link info
+        const result = await provider.fetchSlots(config, today, addDays(today, 1));
+        setLinkInfo(result.linkInfo);
+        setDurations(result.linkInfo.durations);
         // Default to 25 if available, otherwise use the link's default
-        const defaultDur = linkInfo.durations.includes(25)
+        const defaultDur = result.linkInfo.durations.includes(25)
           ? 25
-          : linkInfo.defaultDuration;
+          : result.linkInfo.defaultDuration;
         setSelectedDuration(defaultDur.toString());
       } catch (error) {
         console.error("Failed to load link durations:", error);
       }
     };
     loadLinkInfo();
-  }, []);
+  }, [providerType]);
 
   // Reset to fresh dates on mount
   useEffect(() => {
@@ -351,14 +207,9 @@ export default function Command() {
     setIsLoading(true);
 
     try {
-      const { slots, linkId } = await fetchAvailableSlots(
-        preferences.savvycalToken,
-        preferences.savvycalLink,
-        startDate,
-        endDate,
-      );
+      const result = await provider.fetchSlots(config, startDate, endDate);
 
-      if (slots.length === 0) {
+      if (result.slots.length === 0) {
         await showToast({
           style: Toast.Style.Failure,
           title: "No available slots",
@@ -371,24 +222,24 @@ export default function Command() {
       const duration = parseInt(selectedDuration);
 
       const htmlMessage = generateMessage(
-        slots,
+        result.slots,
         timezone,
         clickableSlots,
-        preferences.savvycalUsername,
-        preferences.savvycalLink,
-        linkId,
+        providerType,
+        config,
+        result.linkInfo,
         duration,
         preferences.bookerUrl,
       );
 
       // Also generate plain text version (strip HTML tags)
       const plainTextMessage = generateMessage(
-        slots,
+        result.slots,
         timezone,
         false, // No clickable slots for plain text
-        preferences.savvycalUsername,
-        preferences.savvycalLink,
-        linkId,
+        providerType,
+        config,
+        result.linkInfo,
         duration,
         preferences.bookerUrl,
       );
@@ -429,12 +280,21 @@ export default function Command() {
             icon={Icon.Clipboard}
             onSubmit={handleSubmit}
           />
+          <Action
+            title="Copy Calendar Link"
+            icon={Icon.Link}
+            onAction={async () => {
+              const link = provider.getFallbackUrl(config);
+              await Clipboard.copy(link);
+              await showHUD("✓ Calendar link copied!");
+            }}
+          />
         </ActionPanel>
       }
     >
       <Form.Description
         title="Propose Times"
-        text={`Generate a message with your SavvyCal availability: ${dateRangeText}`}
+        text={`Generate a message with your ${provider.name} availability: ${dateRangeText}`}
       />
 
       <Form.DatePicker
