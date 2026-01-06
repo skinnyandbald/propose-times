@@ -33,9 +33,26 @@ https://savvycal.com/you/chat
 
 Each time is a link. Click → booking form → done.
 
-## Setup
+## What You'll Need
 
-You'll need [Raycast](https://raycast.com) and either a [SavvyCal](https://savvycal.com) or [Cal.com](https://cal.com) account.
+### Required
+
+**Raycast** — A Mac app that lets you quickly launch commands with a keyboard shortcut. Think of it like Spotlight, but way more powerful.
+- 🖥️ **Mac only** (sorry, no Windows/Linux)
+- 💰 **Free** — The free version has everything you need. Pro is $8/month but not required.
+- 🔗 [Download Raycast](https://raycast.com)
+
+**A scheduling account** — Either one:
+- [SavvyCal](https://savvycal.com) — Starts at $12/month
+- [Cal.com](https://cal.com) — Free tier available
+
+### Optional
+
+**One-click booking** requires deploying a small web app (see [One-Click Booking](#one-click-booking) below). Without it, time slots still link to your calendar page—just with an extra step for the booker.
+
+---
+
+## Setup
 
 ```bash
 git clone https://github.com/skinnyandbald/propose-times.git
@@ -86,13 +103,25 @@ Choose your calendar provider in extension preferences:
 | **Default Timezone** | Recipient's default timezone |
 | **Booker URL** | (Optional) Your SavvyCal-Booker deployment URL for one-click booking |
 
-## One-Click Booking
+## One-Click Booking (Optional)
 
-By default, time slots link to your SavvyCal or Cal.com page. For true one-click booking (click → enter name/email → booked), deploy the companion app:
+By default, time slots link to your SavvyCal or Cal.com page. For true one-click booking (click → enter name/email → booked), you can deploy a small companion app.
+
+### What's Vercel?
+
+**Vercel** is a hosting service that runs small web apps for free. You don't need to understand how it works—just click the button below and follow the prompts.
+
+- 💰 **Free** — The free tier handles plenty of bookings. Paid plans start at $20/month if you outgrow it.
+- 🔗 [Learn more about Vercel](https://vercel.com)
+
+### Deploy in 2 Minutes
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fskinnyandbald%2Fsavvycal-booker&env=SAVVYCAL_TOKEN,CALCOM_API_KEY&envDescription=API%20tokens%20for%20your%20calendar%20providers&envLink=https%3A%2F%2Fsavvycal.com%2Fsettings%2Fintegrations)
 
-Then add your Vercel URL to the **Booker URL** preference.
+1. Click the button above (you'll create a free Vercel account if you don't have one)
+2. Add your API token(s) when prompted
+3. Click Deploy
+4. Copy your new URL and add it to **Booker URL** in the Raycast extension preferences
 
 ## License
 
