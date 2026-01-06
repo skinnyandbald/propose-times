@@ -60,7 +60,7 @@ export const calcomProvider: CalendarProvider = {
     let eventType: CalComEventType | null = null;
     if (eventTypeResponse.ok) {
       try {
-        const eventTypeData: CalComEventTypesResponse = await eventTypeResponse.json();
+        const eventTypeData = (await eventTypeResponse.json()) as CalComEventTypesResponse;
         if (eventTypeData.data && eventTypeData.data.length > 0) {
           eventType = eventTypeData.data[0];
           console.log("Cal.com event type found:", eventType.title, "durations:", eventType.lengthInMinutesOptions);
