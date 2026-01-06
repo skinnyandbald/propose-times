@@ -92,14 +92,14 @@ export const calcomProvider: CalendarProvider = {
     console.log("Cal.com slots response:", response.status);
 
     if (!response.ok) {
-      throw new Error(`Cal.com API error: ${response.status} - ${responseText}`);
+      throw new Error(`Cal.com API error: ${response.status} - ${responseText.slice(0, 200)}`);
     }
 
     let data: CalComSlotsResponse;
     try {
       data = JSON.parse(responseText);
     } catch {
-      throw new Error(`Invalid JSON from Cal.com: ${responseText}`);
+      throw new Error(`Invalid JSON from Cal.com: ${responseText.slice(0, 200)}`);
     }
 
     // Get default duration from event type or fallback
@@ -158,8 +158,8 @@ export const calcomProvider: CalendarProvider = {
     if (bookerUrl) {
       const params = new URLSearchParams({
         slot: slotDate.toISOString(),
-        username: calcomUsername || "",
-        event_slug: calcomEventSlug || "",
+        username: calcomUsername,
+        event_slug: calcomEventSlug,
         duration: duration.toString(),
         tz: timezone,
         provider: "calcom",

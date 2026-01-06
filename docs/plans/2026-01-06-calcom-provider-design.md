@@ -16,7 +16,7 @@ Add Cal.com as an alternative calendar provider to the Propose Times extension. 
 
 ## File Structure
 
-```
+```text
 src/
   propose-times.tsx
   providers/

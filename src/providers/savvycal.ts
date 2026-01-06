@@ -36,7 +36,7 @@ async function fetchLinkInfo(
 
   if (!response.ok) {
     throw new Error(
-      `SavvyCal API error fetching links: ${response.status} - ${responseText}`,
+      `SavvyCal API error fetching links: ${response.status}`,
     );
   }
 
@@ -44,7 +44,7 @@ async function fetchLinkInfo(
   try {
     data = JSON.parse(responseText) as SavvyCalLinksResponse;
   } catch {
-    throw new Error(`Invalid JSON from SavvyCal: ${responseText}`);
+    throw new Error(`Invalid JSON from SavvyCal`);
   }
 
   const links =
@@ -103,23 +103,25 @@ export const savvycalProvider: CalendarProvider = {
     console.log("SavvyCal slots response:", response.status);
 
     if (!response.ok) {
-      throw new Error(`SavvyCal API error: ${response.status} - ${responseText}`);
+      throw new Error(`SavvyCal API error: ${response.status}`);
     }
 
     let data;
     try {
       data = JSON.parse(responseText);
     } catch {
-      throw new Error(`Invalid JSON from SavvyCal slots: ${responseText}`);
+      throw new Error(`Invalid JSON from SavvyCal slots`);
     }
 
     const rawSlots = Array.isArray(data) ? data : data.data || data.entries || [];
 
-    // Normalize to our TimeSlot format
-    const slots: TimeSlot[] = rawSlots.map((s: { start_at: string; end_at: string }) => ({
-      start_at: s.start_at,
-      end_at: s.end_at,
-    }));
+    // Normalize to our TimeSlot format, filtering out malformed slots
+    const slots: TimeSlot[] = rawSlots
+      .filter((s: { start_at?: string; end_at?: string }) => s.start_at && s.end_at)
+      .map((s: { start_at: string; end_at: string }) => ({
+        start_at: s.start_at,
+        end_at: s.end_at,
+      }));
 
     return { slots, linkInfo };
   },

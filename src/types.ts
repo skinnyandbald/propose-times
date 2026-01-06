@@ -5,7 +5,6 @@ export type ProviderType = "savvycal" | "calcom";
 export interface TimeSlot {
   start_at: string;
   end_at: string;
-  duration?: number;
 }
 
 export interface LinkInfo {
