@@ -189,11 +189,6 @@ export default function Command() {
         setSelectedDuration(defaultDur.toString());
       } catch (error) {
         console.error("Failed to load link durations:", error);
-        // Use default durations for Cal.com
-        if (providerType === "calcom") {
-          setDurations([15, 30, 45, 60]);
-          setSelectedDuration("30");
-        }
       }
     };
     loadLinkInfo();

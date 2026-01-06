@@ -69,7 +69,8 @@ export const calcomProvider: CalendarProvider = {
         console.log("Failed to parse event type response:", err);
       }
     } else {
-      console.log("Failed to fetch event type:", eventTypeResponse.status);
+      console.error("Failed to fetch event type:", eventTypeResponse.status);
+      throw new Error(`Could not fetch Cal.com event type details (status: ${eventTypeResponse.status}). Please check your username and event slug.`);
     }
 
     // Now fetch slots
@@ -147,6 +148,10 @@ export const calcomProvider: CalendarProvider = {
     duration: number,
   ): string {
     const { calcomUsername, calcomEventSlug } = config;
+    if (!calcomUsername || !calcomEventSlug) {
+      console.error("Cal.com username or event slug is missing for generating booking URL.");
+      return "https://cal.com";
+    }
     const slotDate = new Date(slot.start_at);
 
     // Use one-click booker if configured
@@ -170,6 +175,8 @@ export const calcomProvider: CalendarProvider = {
   },
 
   getFallbackUrl(config: ProviderConfig): string {
-    return `https://cal.com/${config.calcomUsername}/${config.calcomEventSlug}`;
+    return config.calcomUsername && config.calcomEventSlug
+      ? `https://cal.com/${config.calcomUsername}/${config.calcomEventSlug}`
+      : "https://cal.com";
   },
 };
