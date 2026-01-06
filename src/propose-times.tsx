@@ -283,7 +283,6 @@ export default function Command() {
           <Action
             title="Copy Calendar Link"
             icon={Icon.Link}
-            shortcut={{ modifiers: ["cmd", "shift"], key: "c" }}
             onAction={async () => {
               const link = provider.getFallbackUrl(config);
               await Clipboard.copy(link);
