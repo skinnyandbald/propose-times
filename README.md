@@ -2,7 +2,7 @@
 
 A Raycast extension that pulls your SavvyCal or Cal.com availability and generates a message with specific times—in the recipient's timezone, with one-click booking.
 
-<img width="1724" height="1172" alt="CleanShot 2026-01-06 at 16 14 12@2x" src="https://github.com/user-attachments/assets/2a592676-bf13-4407-a3f3-b66802525ab2" />
+<img width="1598" height="566" alt="image" src="https://github.com/user-attachments/assets/4fa773cb-257c-4a6a-b9f4-de24e125916c" />
 
 **Works with [SavvyCal-Booker](https://github.com/skinnyandbald/savvycal-booker)** for true one-click booking (optional).
 
