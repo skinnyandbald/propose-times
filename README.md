@@ -48,6 +48,8 @@ Then in Raycast: **Preferences → Extensions → + → Import Extension** → s
 
 That's it. No terminal running in the background—it's installed like any other Raycast extension.
 
+**Tip:** Assign a hotkey for quick access. In Raycast, search "Propose Times" → `⌘ + K` → Configure Command → set a Hotkey (e.g., `⌘ + ⇧ + P`).
+
 ### Development
 
 If you want to make changes:
