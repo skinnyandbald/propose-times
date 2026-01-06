@@ -177,11 +177,6 @@ async function fetchAvailableSlots(
   };
 }
 
-interface TimeWindow {
-  start: Date;
-  end: Date;
-}
-
 function groupSlotsByDay(
   slots: TimeSlot[],
   timezone: string,
@@ -205,66 +200,29 @@ function groupSlotsByDay(
   return grouped;
 }
 
-// Merge consecutive slots into time windows
-function mergeIntoWindows(slots: TimeSlot[]): TimeWindow[] {
-  if (slots.length === 0) return [];
-
-  // Sort by start time
-  const sorted = [...slots].sort(
-    (a, b) => new Date(a.start_at).getTime() - new Date(b.start_at).getTime(),
-  );
-
-  const windows: TimeWindow[] = [];
-  let currentWindow: TimeWindow = {
-    start: new Date(sorted[0].start_at),
-    end: new Date(sorted[0].end_at),
-  };
-
-  for (let i = 1; i < sorted.length; i++) {
-    const slotStart = new Date(sorted[i].start_at);
-    const slotEnd = new Date(sorted[i].end_at);
-
-    // If this slot starts at or before current window ends, extend the window
-    if (slotStart.getTime() <= currentWindow.end.getTime()) {
-      currentWindow.end = new Date(
-        Math.max(currentWindow.end.getTime(), slotEnd.getTime()),
-      );
-    } else {
-      // Gap found - save current window and start new one
-      windows.push(currentWindow);
-      currentWindow = { start: slotStart, end: slotEnd };
-    }
-  }
-
-  // Don't forget the last window
-  windows.push(currentWindow);
-
-  return windows;
-}
-
-function formatTimeWindow(window: TimeWindow, timezone: string): string {
-  const startTime = formatInTimeZone(
-    window.start,
+function formatSlotTime(slot: TimeSlot, timezone: string): string {
+  return formatInTimeZone(
+    new Date(slot.start_at),
     timezone,
     "h:mma",
   ).toLowerCase();
-  const endTime = formatInTimeZone(window.end, timezone, "h:mma").toLowerCase();
-  return `${startTime} - ${endTime}`;
 }
 
-function generateWindowDeepLink(
+function generateSlotDeepLink(
   username: string,
   linkSlug: string,
   linkId: string,
-  window: TimeWindow,
+  slot: TimeSlot,
   timezone: string,
   bookerUrl?: string,
   duration: number = 30,
 ): string {
+  const slotDate = new Date(slot.start_at);
+
   // If booker URL is configured, use one-click booking
   if (bookerUrl) {
     const params = new URLSearchParams({
-      slot: window.start.toISOString(),
+      slot: slotDate.toISOString(),
       link_id: linkId,
       duration: duration.toString(),
       tz: timezone,
@@ -273,7 +231,7 @@ function generateWindowDeepLink(
   }
 
   // Fallback: SavvyCal only supports 'from' param to jump to a date (not pre-select a slot)
-  const dateStr = format(window.start, "yyyy-MM-dd");
+  const dateStr = format(slotDate, "yyyy-MM-dd");
   return `https://savvycal.com/${username}/${linkSlug}?from=${dateStr}&time_zone=${encodeURIComponent(timezone)}`;
 }
 
@@ -291,7 +249,7 @@ function generateMessage(
   const groupedSlots = groupSlotsByDay(slots, timezone);
 
   const lines: string[] = [
-    `Would any of these time windows work for a ${duration} min meeting (${tzAbbr})?`,
+    `Would any of these times work for a ${duration} min meeting (${tzAbbr})?`,
   ];
 
   const sortedDays = Array.from(groupedSlots.keys()).sort();
@@ -301,35 +259,35 @@ function generateMessage(
     const zonedDate = utcToZonedTime(new Date(daySlots[0].start_at), timezone);
     const dayLabel = format(zonedDate, "EEE, MMM d");
 
-    // Merge consecutive slots into windows
-    const windows = mergeIntoWindows(daySlots);
+    // Sort slots by time and show up to 5 per day
+    const sortedSlots = [...daySlots].sort(
+      (a, b) => new Date(a.start_at).getTime() - new Date(b.start_at).getTime(),
+    );
+    const displaySlots = sortedSlots.slice(0, 5);
 
-    // Show up to 3 windows per day
-    const displayWindows = windows.slice(0, 3);
-
-    const windowStrings = displayWindows.map((window) => {
-      const windowStr = formatTimeWindow(window, timezone);
+    const slotStrings = displaySlots.map((slot) => {
+      const timeStr = formatSlotTime(slot, timezone);
       if (clickableSlots) {
-        const link = generateWindowDeepLink(
+        const link = generateSlotDeepLink(
           username,
           linkSlug,
           linkId,
-          window,
+          slot,
           timezone,
           bookerUrl,
           duration,
         );
-        return `<a href="${link}">${windowStr}</a>`;
+        return `<a href="${link}">${timeStr}</a>`;
       }
-      return windowStr;
+      return timeStr;
     });
 
-    lines.push(`• ${dayLabel}: ${windowStrings.join(", ")}`);
+    lines.push(`• ${dayLabel}: ${slotStrings.join(", ")}`);
   }
 
   lines.push("");
   lines.push(
-    `Feel free to use this booking page if that's easier (also contains more availabilities):`,
+    `Or use my booking page for more options:`,
   );
   lines.push(`https://savvycal.com/${username}/${linkSlug}`);
 
