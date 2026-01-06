@@ -2,6 +2,8 @@
 
 A Raycast extension that pulls your SavvyCal availability and generates a message with specific times—in the recipient's timezone, with one-click booking.
 
+**Works with [SavvyCal Booker](https://github.com/skinnyandbald/savvycal-booker)** for true one-click booking (optional).
+
 ## Why I Built This
 
 I've been frustrated by scheduling for years. Tried a bunch of approaches: autonomous agents, back-and-forth over email, just sending my SavvyCal link.
