@@ -2,7 +2,7 @@
 
 A Raycast extension that pulls your SavvyCal or Cal.com availability and generates a message with specific times—in the recipient's timezone, with one-click booking.
 
-**Works with [SavvyBooker](https://github.com/skinnyandbald/savvycal-booker)** for true one-click booking (optional).
+**Works with [SavvyCal-Booker](https://github.com/skinnyandbald/savvycal-booker)** for true one-click booking (optional).
 
 ## Why I Built This
 
@@ -84,7 +84,7 @@ Choose your calendar provider in extension preferences:
 | Setting | What it is |
 |---------|------------|
 | **Default Timezone** | Recipient's default timezone |
-| **Booker URL** | (Optional) Your SavvyBooker deployment URL for one-click booking |
+| **Booker URL** | (Optional) Your SavvyCal-Booker deployment URL for one-click booking |
 
 ## One-Click Booking
 
