@@ -287,7 +287,7 @@ function generateMessage(
 
   lines.push("");
   lines.push(
-    `Or use my booking page for more options:`,
+    `Feel free to use this booking page if that's easier (also contains more availabilities):`,
   );
   lines.push(`https://savvycal.com/${username}/${linkSlug}`);
 
