@@ -31,7 +31,7 @@ https://savvycal.com/skinnyandbald/chat
 - [Raycast](https://raycast.com) installed
 - A [SavvyCal](https://savvycal.com) account with an API token
 
-### From Source
+### Install from Source
 
 ```bash
 # Clone the repository
@@ -41,13 +41,25 @@ cd propose-times
 # Install dependencies
 npm install
 
-# Start development mode (extension appears in Raycast)
-npm run dev
+# Build the extension
+npm run build
 ```
+
+Then import into Raycast:
+1. Open Raycast Preferences (`⌘ + ,`)
+2. Go to **Extensions**
+3. Click **+** → **Import Extension**
+4. Select the `propose-times` folder
+
+The extension is now permanently installed—no terminal needed.
 
 ### On Additional Computers
 
-Same steps as above—clone, install, run dev. Your preferences (API token, etc.) are stored locally by Raycast on each machine.
+Same steps: clone, `npm install`, `npm run build`, then import into Raycast. Your preferences (API token, etc.) are stored locally by Raycast on each machine.
+
+### Development Mode
+
+For making changes, use `npm run dev` instead of `npm run build`. This enables hot-reloading but requires the terminal to stay open.
 
 ## Configuration
 
@@ -64,11 +76,16 @@ Open Raycast, search for "Propose Times", and configure these preferences:
 
 ## One-Click Booking (Optional)
 
-By default, time slots link to your SavvyCal page. For true one-click booking, deploy [savvycal-booker](https://github.com/skinnyandbald/savvycal-booker):
+By default, time slots link to your SavvyCal page. For true one-click booking, you need a companion app that handles the booking form:
 
-1. Deploy savvycal-booker to Vercel
-2. Add your Vercel URL to the **Booker URL** preference
-3. Time slots now link directly to a booking form—no calendar picker needed
+**Using the hosted version:**
+1. Set **Booker URL** to `https://savvycal-booker.vercel.app`
+2. Time slots now link directly to a booking form—no calendar picker needed
+
+**Self-hosting:**
+1. Fork and deploy [savvycal-booker](https://github.com/skinnyandbald/savvycal-booker) to Vercel
+2. Add your `SAVVYCAL_TOKEN` environment variable in Vercel
+3. Set **Booker URL** to your deployment URL
 
 ## Usage
 
