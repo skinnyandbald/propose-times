@@ -8,17 +8,23 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
 type ExtensionPreferences = {
-  /** SavvyCal API Token - Your SavvyCal Personal Access Token (starts with pt_secret_) */
-  "savvycalToken": string,
-  /** SavvyCal Link Slug - The slug from your SavvyCal URL (e.g., 'chat' from savvycal.com/skinnyandbald/chat) */
+  /** Calendar Provider - Which scheduling service to use */
+  "provider": "savvycal" | "calcom",
+  /** SavvyCal API Token - Your SavvyCal Personal Access Token (starts with pt_secret_). Required if using SavvyCal. */
+  "savvycalToken"?: string,
+  /** SavvyCal Link Slug - The slug from your SavvyCal URL (e.g., 'chat' from savvycal.com/you/chat). Required if using SavvyCal. */
   "savvycalLink": string,
-  /** SavvyCal Username - Your SavvyCal username (e.g., 'skinnyandbald') */
-  "savvycalUsername": string,
+  /** SavvyCal Username - Your SavvyCal username (e.g., 'skinnyandbald'). Required if using SavvyCal. */
+  "savvycalUsername"?: string,
+  /** Cal.com Username - Your Cal.com username (e.g., 'skinnyandbald' from cal.com/skinnyandbald/...). Required if using Cal.com. */
+  "calcomUsername"?: string,
+  /** Cal.com Event Slug - The event type slug (e.g., 'pow-wow' from cal.com/you/pow-wow). Required if using Cal.com. */
+  "calcomEventSlug"?: string,
   /** Default Recipient Timezone - Default timezone for the person you're proposing times to */
   "defaultTimezone": "America/New_York" | "America/Chicago" | "America/Denver" | "America/Los_Angeles" | "UTC" | "Europe/London" | "Europe/Paris" | "Asia/Tokyo" | "Australia/Sydney",
   /** Default Days Ahead - Default number of days to look ahead for availability */
   "defaultDaysAhead": string,
-  /** Booker URL - URL of your savvycal-booker Vercel deployment (enables one-click booking). Leave empty to link directly to SavvyCal. */
+  /** Booker URL - URL of your booker Vercel deployment (enables one-click booking for both providers). Leave empty to link directly to the calendar provider. */
   "bookerUrl"?: string
 }
 
