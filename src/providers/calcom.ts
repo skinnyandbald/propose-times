@@ -8,18 +8,29 @@ import type {
 } from "../types";
 
 interface CalComSlot {
-  time: string;
+  start: string;
 }
 
 interface CalComSlotsResponse {
   status: string;
-  data: {
-    slots: Record<string, CalComSlot[]>;
-  };
+  data: Record<string, CalComSlot[]>;
+}
+
+interface CalComEventType {
+  id: number;
+  slug: string;
+  title: string;
+  lengthInMinutes: number;
+  lengthInMinutesOptions?: number[];
+}
+
+interface CalComEventTypesResponse {
+  status: string;
+  data: CalComEventType[];
 }
 
 // Cal.com v2 slots API returns slots grouped by date
-// Response: { status: "success", data: { slots: { "2024-01-15": [{ time: "2024-01-15T10:00:00Z" }] } } }
+// Response: { status: "success", data: { "2024-01-15": [{ start: "2024-01-15T10:00:00Z" }] } }
 
 export const calcomProvider: CalendarProvider = {
   name: "Cal.com",
@@ -35,17 +46,43 @@ export const calcomProvider: CalendarProvider = {
       throw new Error("Cal.com username and event slug are required");
     }
 
+    // First, fetch event type info to get allowed durations
+    const eventTypeUrl = `https://api.cal.com/v2/event-types?username=${encodeURIComponent(calcomUsername)}&eventSlug=${encodeURIComponent(calcomEventSlug)}`;
+    console.log("Cal.com event type request:", eventTypeUrl);
+
+    const eventTypeResponse = await fetch(eventTypeUrl, {
+      headers: {
+        "cal-api-version": "2024-06-14",
+        "Content-Type": "application/json",
+      },
+    });
+
+    let eventType: CalComEventType | null = null;
+    if (eventTypeResponse.ok) {
+      try {
+        const eventTypeData: CalComEventTypesResponse = await eventTypeResponse.json();
+        if (eventTypeData.data && eventTypeData.data.length > 0) {
+          eventType = eventTypeData.data[0];
+          console.log("Cal.com event type found:", eventType.title, "durations:", eventType.lengthInMinutesOptions);
+        }
+      } catch (err) {
+        console.log("Failed to parse event type response:", err);
+      }
+    } else {
+      console.log("Failed to fetch event type:", eventTypeResponse.status);
+    }
+
+    // Now fetch slots
     const startStr = format(startDate, "yyyy-MM-dd");
     const endStr = format(endDate, "yyyy-MM-dd");
 
-    // Cal.com public slots API - no auth required
     const url = `https://api.cal.com/v2/slots?eventTypeSlug=${encodeURIComponent(calcomEventSlug)}&username=${encodeURIComponent(calcomUsername)}&start=${startStr}&end=${endStr}&timeZone=UTC`;
 
     console.log("Cal.com slots request:", url);
 
     const response = await fetch(url, {
       headers: {
-        "cal-api-version": "2024-08-13",
+        "cal-api-version": "2024-09-04",
         "Content-Type": "application/json",
       },
     });
@@ -64,17 +101,21 @@ export const calcomProvider: CalendarProvider = {
       throw new Error(`Invalid JSON from Cal.com: ${responseText}`);
     }
 
+    // Get default duration from event type or fallback
+    const defaultDuration = eventType?.lengthInMinutes || 30;
+
     // Convert Cal.com's grouped format to our flat TimeSlot array
+    // Response format: { data: { "2024-01-15": [{ start: "2024-01-15T10:00:00Z" }] }, status: "success" }
     const slots: TimeSlot[] = [];
-    const slotsData = data.data?.slots || {};
+    const slotsData = data.data || {};
 
     for (const dateKey of Object.keys(slotsData)) {
       const daySlots = slotsData[dateKey];
       for (const slot of daySlots) {
-        // Cal.com returns { time: "2024-01-15T10:00:00Z" }
-        const startTime = slot.time;
-        // Calculate end time (assume 30 min default, will be overridden by duration)
-        const endTime = new Date(new Date(startTime).getTime() + 30 * 60 * 1000).toISOString();
+        // Cal.com returns { start: "2024-01-15T10:00:00Z" }
+        const startTime = slot.start;
+        // Calculate end time using actual default duration
+        const endTime = new Date(new Date(startTime).getTime() + defaultDuration * 60 * 1000).toISOString();
         slots.push({
           start_at: startTime,
           end_at: endTime,
@@ -82,13 +123,16 @@ export const calcomProvider: CalendarProvider = {
       }
     }
 
-    // Cal.com doesn't have a "link info" concept like SavvyCal
-    // We create a synthetic one
+    // Build LinkInfo from event type data
+    const durations = eventType?.lengthInMinutesOptions && eventType.lengthInMinutesOptions.length > 0
+      ? eventType.lengthInMinutesOptions
+      : [defaultDuration]; // If no options, just use the single default duration
+
     const linkInfo: LinkInfo = {
-      id: `${calcomUsername}/${calcomEventSlug}`,
+      id: eventType?.id?.toString() || `${calcomUsername}/${calcomEventSlug}`,
       slug: calcomEventSlug,
-      durations: [15, 30, 45, 60], // Cal.com typically supports these
-      defaultDuration: 30,
+      durations,
+      defaultDuration,
     };
 
     return { slots, linkInfo };
