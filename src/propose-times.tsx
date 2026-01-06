@@ -259,11 +259,11 @@ function generateMessage(
     const zonedDate = utcToZonedTime(new Date(daySlots[0].start_at), timezone);
     const dayLabel = format(zonedDate, "EEE, MMM d");
 
-    // Sort slots by time and show up to 5 per day
+    // Sort slots by time and show up to 4 per day
     const sortedSlots = [...daySlots].sort(
       (a, b) => new Date(a.start_at).getTime() - new Date(b.start_at).getTime(),
     );
-    const displaySlots = sortedSlots.slice(0, 5);
+    const displaySlots = sortedSlots.slice(0, 4);
 
     const slotStrings = displaySlots.map((slot) => {
       const timeStr = formatSlotTime(slot, timezone);
