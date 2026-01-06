@@ -37,6 +37,8 @@ interface SchedulingLink {
   id: string;
   slug: string;
   name: string;
+  durations?: number[];
+  default_duration?: number;
 }
 
 interface SavvyCalLinksResponse {
@@ -61,7 +63,13 @@ function getTimezoneAbbr(tzValue: string): string {
   return tz?.abbr || tzValue;
 }
 
-async function fetchLinkIdBySlug(token: string, slug: string): Promise<string> {
+interface LinkInfo {
+  id: string;
+  durations: number[];
+  defaultDuration: number;
+}
+
+async function fetchLinkInfo(token: string, slug: string): Promise<LinkInfo> {
   const response = await fetch("https://api.savvycal.com/v1/links", {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -101,12 +109,18 @@ async function fetchLinkIdBySlug(token: string, slug: string): Promise<string> {
     );
   }
 
-  return link.id;
+  return {
+    id: link.id,
+    durations: link.durations || [30],
+    defaultDuration: link.default_duration || 30,
+  };
 }
 
 interface FetchSlotsResult {
   slots: TimeSlot[];
   linkId: string;
+  durations: number[];
+  defaultDuration: number;
 }
 
 async function fetchAvailableSlots(
@@ -115,7 +129,8 @@ async function fetchAvailableSlots(
   startDate: Date,
   endDate: Date,
 ): Promise<FetchSlotsResult> {
-  const linkId = await fetchLinkIdBySlug(token, linkSlug);
+  const linkInfo = await fetchLinkInfo(token, linkSlug);
+  const linkId = linkInfo.id;
 
   // SavvyCal requires ISO-8601 timestamps in UTC (e.g., 2024-01-20T00:00:00Z)
   const fromDate = new Date(startDate);
@@ -154,7 +169,12 @@ async function fetchAvailableSlots(
   // Handle response: direct array OR { data: [...] } OR { entries: [...] }
   const slots = Array.isArray(data) ? data : data.data || data.entries || [];
   console.log("Parsed slots count:", slots.length);
-  return { slots, linkId };
+  return {
+    slots,
+    linkId,
+    durations: linkInfo.durations,
+    defaultDuration: linkInfo.defaultDuration,
+  };
 }
 
 interface TimeWindow {
@@ -264,13 +284,14 @@ function generateMessage(
   username: string,
   linkSlug: string,
   linkId: string,
+  duration: number,
   bookerUrl?: string,
 ): string {
   const tzAbbr = getTimezoneAbbr(timezone);
   const groupedSlots = groupSlotsByDay(slots, timezone);
 
   const lines: string[] = [
-    `Would any of these time windows work for a 30 min meeting (${tzAbbr})?`,
+    `Would any of these time windows work for a ${duration} min meeting (${tzAbbr})?`,
   ];
 
   const sortedDays = Array.from(groupedSlots.keys()).sort();
@@ -296,6 +317,7 @@ function generateMessage(
           window,
           timezone,
           bookerUrl,
+          duration,
         );
         return `<a href="${link}">${windowStr}</a>`;
       }
@@ -334,6 +356,29 @@ export default function Command() {
   const [timezone, setTimezone] = useState(preferences.defaultTimezone);
   const [clickableSlots, setClickableSlots] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [durations, setDurations] = useState<number[]>([25, 30, 45, 60]);
+  const [selectedDuration, setSelectedDuration] = useState<string>("25");
+
+  // Fetch link info to get available durations
+  useEffect(() => {
+    const loadLinkInfo = async () => {
+      try {
+        const linkInfo = await fetchLinkInfo(
+          preferences.savvycalToken,
+          preferences.savvycalLink,
+        );
+        setDurations(linkInfo.durations);
+        // Default to 25 if available, otherwise use the link's default
+        const defaultDur = linkInfo.durations.includes(25)
+          ? 25
+          : linkInfo.defaultDuration;
+        setSelectedDuration(defaultDur.toString());
+      } catch (error) {
+        console.error("Failed to load link durations:", error);
+      }
+    };
+    loadLinkInfo();
+  }, []);
 
   // Reset to fresh dates on mount
   useEffect(() => {
@@ -365,6 +410,8 @@ export default function Command() {
         return;
       }
 
+      const duration = parseInt(selectedDuration);
+
       const htmlMessage = generateMessage(
         slots,
         timezone,
@@ -372,6 +419,7 @@ export default function Command() {
         preferences.savvycalUsername,
         preferences.savvycalLink,
         linkId,
+        duration,
         preferences.bookerUrl,
       );
 
@@ -383,6 +431,7 @@ export default function Command() {
         preferences.savvycalUsername,
         preferences.savvycalLink,
         linkId,
+        duration,
         preferences.bookerUrl,
       );
 
@@ -447,6 +496,21 @@ export default function Command() {
       />
 
       <Form.Separator />
+
+      <Form.Dropdown
+        id="duration"
+        title="Meeting Duration"
+        value={selectedDuration}
+        onChange={setSelectedDuration}
+      >
+        {durations.map((d) => (
+          <Form.Dropdown.Item
+            key={d}
+            value={d.toString()}
+            title={`${d} minutes`}
+          />
+        ))}
+      </Form.Dropdown>
 
       <Form.Dropdown
         id="timezone"
