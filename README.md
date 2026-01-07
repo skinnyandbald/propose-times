@@ -35,29 +35,121 @@ https://savvycal.com/you/chat
 
 Each time is a link. Click → booking form → done.
 
-## Setup
+## What You'll Need
 
-You'll need [Raycast](https://raycast.com) and either a [SavvyCal](https://savvycal.com) or [Cal.com](https://cal.com) account.
+### Required
 
+**Raycast** — A Mac app that lets you quickly launch commands with a keyboard shortcut. Think of it like Spotlight, but way more powerful.
+- 🖥️ **Mac only** (sorry, no Windows/Linux)
+- 💰 **Free** — The free version has everything you need. Pro is $8/month but not required.
+- 🔗 [Download Raycast](https://raycast.com)
+
+**A scheduling account** — Either one:
+- [SavvyCal](https://savvycal.com) — Starts at $12/month
+- [Cal.com](https://cal.com) — Free tier available
+
+### Optional
+
+**One-click booking** requires deploying a small web app (see [One-Click Booking](#one-click-booking) below). Without it, time slots still link to your calendar page—just with an extra step for the booker.
+
+---
+
+## Installation
+
+This extension isn't in the Raycast Store (yet), so you'll install it as a "Developer Extension." Don't worry—it's straightforward.
+
+### Prerequisites
+
+You'll need **Node.js** installed on your Mac. To check if you have it:
+
+1. Open **Terminal** (press `⌘ + Space`, type "Terminal", hit Enter)
+2. Type `node --version` and press Enter
+
+If you see a version number (like `v20.10.0`), you're good. If you see "command not found":
+- 🔗 [Download Node.js](https://nodejs.org) — choose the "LTS" version, run the installer
+
+### Step-by-Step Installation
+
+**Step 1: Download the code**
+
+**Option A: Download ZIP (easiest)**
+
+1. Go to [github.com/skinnyandbald/propose-times](https://github.com/skinnyandbald/propose-times)
+2. Click the green **"Code"** button
+3. Click **"Download ZIP"**
+4. Unzip the downloaded file (double-click it)
+5. Rename the folder from `propose-times-main` to `propose-times` (optional but cleaner)
+
+**Option B: Use git (if you have it)**
+
+Open Terminal and run:
 ```bash
 git clone https://github.com/skinnyandbald/propose-times.git
-cd propose-times
+```
+
+**Step 2: Build the extension**
+
+Open Terminal, navigate to the folder, and run the build commands:
+
+```bash
+cd ~/Downloads/propose-times
+```
+(adjust the path if you put it somewhere else)
+
+```bash
 npm install
+```
+
+```bash
 npm run build
 ```
 
-Then in Raycast: **Preferences → Extensions → + → Import Extension** → select the folder.
+> **What's happening:** `npm install` downloads the libraries it needs. `npm run build` compiles everything into a format Raycast can use.
 
-That's it. No terminal running in the background—it's installed like any other Raycast extension.
+**Step 3: Import into Raycast**
 
-**Tip:** Assign a hotkey for quick access. In Raycast, search "Propose Times" → `⌘ + K` → Configure Command → set a Hotkey (e.g., `⌘ + ⇧ + P`).
+1. Open **Raycast** (your usual hotkey, or `⌘ + Space` → "Raycast")
+2. Press `⌘ + ,` to open **Preferences**
+3. Click the **Extensions** tab (left sidebar)
+4. Click the **+** button (bottom-left corner)
+5. Select **"Import Extension"**
+6. Navigate to the `propose-times` folder (it's in your home folder by default)
+7. Click **Open**
 
-### Development
+Done! The extension is now installed permanently—no terminal needs to stay open.
 
-If you want to make changes:
+### Quick Access (Optional but Recommended)
+
+Assign a keyboard shortcut so you can launch it instantly:
+
+1. In Raycast, search for "Propose Times"
+2. Press `⌘ + K` to open the action menu
+3. Select **Configure Command**
+4. Set a **Hotkey** (e.g., `⌘ + ⇧ + P`)
+
+### Troubleshooting
+
+**"git: command not found"**
+- Install Xcode Command Line Tools: open Terminal, run `xcode-select --install`
+
+**"npm: command not found"**
+- Install Node.js from [nodejs.org](https://nodejs.org)
+
+**Can't find the propose-times folder?**
+- By default, `git clone` puts it in your home folder. In Finder: `⌘ + ⇧ + H` → look for `propose-times`
+
+**Extension not showing in Raycast?**
+- Make sure you ran `npm run build` before importing
+- Try removing and re-importing the extension
+
+---
+
+## Development
+
+If you want to make changes to the extension:
 
 ```bash
-npm run dev  # Hot-reloads, but terminal must stay open
+npm run dev  # Hot-reloads changes, but terminal must stay open
 ```
 
 ### Configuration
@@ -88,13 +180,27 @@ Choose your calendar provider in extension preferences:
 | **Default Timezone** | Recipient's default timezone |
 | **Booker URL** | (Optional) Your SavvyCal-Booker deployment URL for one-click booking |
 
-## One-Click Booking
+## One-Click Booking (Optional)
 
-By default, time slots link to your SavvyCal or Cal.com page. For true one-click booking (click → enter name/email → booked), deploy the companion app:
+By default, time slots link to your SavvyCal or Cal.com page for that day—but the recipient still has to find and click the specific time slot. Neither service supports pre-selecting a time via URL.
+
+With the companion app, clicking a time opens a simple form with that slot pre-filled—enter name/email, submit, done:
+
+### What's Vercel?
+
+**Vercel** is a hosting service that runs small web apps for free. You don't need to understand how it works—just click the button below and follow the prompts.
+
+- 💰 **Free** — The free tier handles plenty of bookings. Paid plans start at $20/month if you outgrow it.
+- 🔗 [Learn more about Vercel](https://vercel.com)
+
+### Deploy in 2 Minutes
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fskinnyandbald%2Fsavvycal-booker&env=SAVVYCAL_TOKEN,CALCOM_API_KEY&envDescription=API%20tokens%20for%20your%20calendar%20providers&envLink=https%3A%2F%2Fsavvycal.com%2Fsettings%2Fintegrations)
 
-Then add your Vercel URL to the **Booker URL** preference.
+1. Click the button above (you'll create a free Vercel account if you don't have one)
+2. Add your API token(s) when prompted
+3. Click Deploy
+4. Copy your new URL and add it to **Booker URL** in the Raycast extension preferences
 
 ## License
 
