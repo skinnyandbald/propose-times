@@ -318,4 +318,78 @@ describe("selectSmartSlots", () => {
       expect(times).toContain("08:30");
     });
   });
+
+  describe("BUG: duplicate times", () => {
+    it("never returns duplicate times", () => {
+      // Scenario that could produce duplicates:
+      // - diversity slot and high-score slot are the same time
+      const slots = [
+        slot("11:00"),
+        slot("12:00"),
+        slot("12:30"),
+        slot("13:00"),
+      ];
+
+      const result = selectSmartSlots(slots, "UTC", 3);
+      const times = result.map((s) => s.start_at);
+
+      // All times should be unique
+      const uniqueTimes = new Set(times);
+      expect(uniqueTimes.size).toBe(result.length);
+    });
+
+    it("never returns duplicate times even with identical scores", () => {
+      // All slots have equal scores (no gaps = all 0.5)
+      const slots = [
+        slot("09:00"),
+        slot("09:30"),
+        slot("10:00"),
+        slot("10:30"),
+        slot("14:00"),
+        slot("14:30"),
+      ];
+
+      const result = selectSmartSlots(slots, "UTC", 3);
+      const times = result.map((s) => s.start_at);
+
+      const uniqueTimes = new Set(times);
+      expect(uniqueTimes.size).toBe(result.length);
+    });
+
+    it("handles input with duplicate slots from API", () => {
+      // API might return the same slot multiple times
+      const slots = [
+        slot("11:00"),
+        slot("12:00"),
+        slot("12:00"), // Duplicate from API!
+        slot("12:30"),
+        slot("13:00"),
+      ];
+
+      const result = selectSmartSlots(slots, "UTC", 3);
+      const times = result.map((s) => s.start_at);
+
+      // All returned times should be unique
+      const uniqueTimes = new Set(times);
+      expect(uniqueTimes.size).toBe(result.length);
+    });
+
+    it("deduplicates slots with same start time but different end time", () => {
+      // Could happen with duration variants
+      const slots: TimeSlot[] = [
+        { start_at: "2026-01-07T11:00:00Z", end_at: "2026-01-07T11:25:00Z" },
+        { start_at: "2026-01-07T12:00:00Z", end_at: "2026-01-07T12:25:00Z" },
+        { start_at: "2026-01-07T12:00:00Z", end_at: "2026-01-07T12:30:00Z" }, // Same start, different duration
+        { start_at: "2026-01-07T12:30:00Z", end_at: "2026-01-07T12:55:00Z" },
+        { start_at: "2026-01-07T13:00:00Z", end_at: "2026-01-07T13:25:00Z" },
+      ];
+
+      const result = selectSmartSlots(slots, "UTC", 3);
+      const startTimes = result.map((s) => s.start_at);
+
+      // All start times should be unique
+      const uniqueStartTimes = new Set(startTimes);
+      expect(uniqueStartTimes.size).toBe(result.length);
+    });
+  });
 });

@@ -106,18 +106,26 @@ export function selectSmartSlots(
   timezone: string,
   maxSlots: number = 4,
 ): TimeSlot[] {
-  if (slots.length <= maxSlots) {
+  // Deduplicate slots by start_at (API may return duplicates)
+  const seen = new Set<string>();
+  const uniqueSlots = slots.filter((slot) => {
+    if (seen.has(slot.start_at)) return false;
+    seen.add(slot.start_at);
+    return true;
+  });
+
+  if (uniqueSlots.length <= maxSlots) {
     // Not enough slots to be selective, return all sorted
-    return [...slots].sort(
+    return [...uniqueSlots].sort(
       (a, b) => new Date(a.start_at).getTime() - new Date(b.start_at).getTime(),
     );
   }
 
   // Detect gaps (meetings)
-  const gaps = detectGaps(slots, timezone);
+  const gaps = detectGaps(uniqueSlots, timezone);
 
   // Score all slots
-  const scoredSlots: ScoredSlot[] = slots.map((slot) => ({
+  const scoredSlots: ScoredSlot[] = uniqueSlots.map((slot) => ({
     slot,
     score: scoreSlotByProximity(slot, gaps),
     bucket: getTimeBucket(slot, timezone),
