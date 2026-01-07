@@ -107,7 +107,8 @@ function generateMessage(
     `Would any of these times work for a ${duration} min meeting (${tzAbbr})?`,
   ];
 
-  const sortedDays = Array.from(groupedSlots.keys()).sort();
+  // Limit to 3 days with availability
+  const sortedDays = Array.from(groupedSlots.keys()).sort().slice(0, 3);
 
   for (const dayKey of sortedDays) {
     const daySlots = groupedSlots.get(dayKey)!;
