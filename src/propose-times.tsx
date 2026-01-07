@@ -114,10 +114,10 @@ function generateMessage(
     const zonedDate = utcToZonedTime(new Date(daySlots[0].start_at), timezone);
     const dayLabel = format(zonedDate, "EEE, MMM d");
 
-    // Select up to 4 slots per day using smart selection:
+    // Select up to 3 slots per day using smart selection:
     // - Prioritizes slots adjacent to meetings (inferred from gaps)
     // - Ensures at least one slot from a different time bucket for diversity
-    const displaySlots = selectSmartSlots(daySlots, timezone, 4);
+    const displaySlots = selectSmartSlots(daySlots, timezone, 3);
 
     const slotStrings = displaySlots.map((slot) => {
       const timeStr = formatSlotTime(slot, timezone);
