@@ -24,6 +24,10 @@ type ExtensionPreferences = {
   "defaultTimezone": "America/New_York" | "America/Chicago" | "America/Denver" | "America/Los_Angeles" | "UTC" | "Europe/London" | "Europe/Paris" | "Asia/Tokyo" | "Australia/Sydney",
   /** Default Days Ahead - Default number of days to look ahead for availability */
   "defaultDaysAhead": string,
+  /** Max Days to Show - Maximum number of days to include in the message */
+  "maxDaysToShow": string,
+  /** Max Slots Per Day - Maximum number of time slots to show per day */
+  "maxSlotsPerDay": string,
   /** Booker URL - URL of your booker Vercel deployment (enables one-click booking for both providers). Leave empty to link directly to the calendar provider. */
   "bookerUrl"?: string
 }

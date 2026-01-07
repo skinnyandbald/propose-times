@@ -28,6 +28,8 @@ interface Preferences {
   // Common
   defaultTimezone: string;
   defaultDaysAhead: string;
+  maxDaysToShow: string;
+  maxSlotsPerDay: string;
   bookerUrl?: string;
 }
 
@@ -97,6 +99,8 @@ function generateMessage(
   config: ProviderConfig,
   linkInfo: LinkInfo,
   duration: number,
+  maxDays: number,
+  maxSlotsPerDay: number,
   bookerUrl?: string,
 ): string {
   const provider = getProvider(providerType);
@@ -107,18 +111,18 @@ function generateMessage(
     `Would any of these times work for a ${duration} min meeting (${tzAbbr})?`,
   ];
 
-  // Limit to 3 days with availability
-  const sortedDays = Array.from(groupedSlots.keys()).sort().slice(0, 3);
+  // Limit to configured number of days with availability
+  const sortedDays = Array.from(groupedSlots.keys()).sort().slice(0, maxDays);
 
   for (const dayKey of sortedDays) {
     const daySlots = groupedSlots.get(dayKey)!;
     const zonedDate = utcToZonedTime(new Date(daySlots[0].start_at), timezone);
     const dayLabel = format(zonedDate, "EEE, MMM d");
 
-    // Select up to 3 slots per day using smart selection:
+    // Select slots using smart selection:
     // - Prioritizes slots adjacent to meetings (inferred from gaps)
     // - Ensures at least one slot from a different time bucket for diversity
-    const displaySlots = selectSmartSlots(daySlots, timezone, 3);
+    const displaySlots = selectSmartSlots(daySlots, timezone, maxSlotsPerDay);
 
     const slotStrings = displaySlots.map((slot) => {
       const timeStr = formatSlotTime(slot, timezone);
@@ -157,7 +161,7 @@ function normalizeDate(d: Date): Date {
 
 export default function Command() {
   const preferences = getPreferenceValues<Preferences>();
-  const defaultDays = parseInt(preferences.defaultDaysAhead) || 4;
+  const defaultDays = parseInt(preferences.defaultDaysAhead) || 10;
   const providerType = preferences.provider || "savvycal";
   const provider = getProvider(providerType);
   const config = getProviderConfig(preferences);
@@ -225,6 +229,8 @@ export default function Command() {
       }
 
       const duration = parseInt(selectedDuration);
+      const maxDays = parseInt(preferences.maxDaysToShow) || 3;
+      const maxSlotsPerDay = parseInt(preferences.maxSlotsPerDay) || 3;
 
       const htmlMessage = generateMessage(
         result.slots,
@@ -234,6 +240,8 @@ export default function Command() {
         config,
         result.linkInfo,
         duration,
+        maxDays,
+        maxSlotsPerDay,
         preferences.bookerUrl,
       );
 
@@ -246,6 +254,8 @@ export default function Command() {
         config,
         result.linkInfo,
         duration,
+        maxDays,
+        maxSlotsPerDay,
         preferences.bookerUrl,
       );
 
