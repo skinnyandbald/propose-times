@@ -87,36 +87,22 @@ Open Terminal and run:
 git clone https://github.com/skinnyandbald/propose-times.git
 ```
 
-**Step 2: Build the extension**
+**Step 2: Install and register with Raycast**
 
-Open Terminal, navigate to the folder, and run the build commands:
+Open Terminal, navigate to the folder, and run:
 
 ```bash
 cd ~/Downloads/propose-times
 ```
-(adjust the path if you put it somewhere else)
+(adjust the path if you put it somewhere else—`git clone` puts it in your home folder)
 
 ```bash
-npm install
+npm install && npm run dev
 ```
 
-```bash
-npm run build
-```
+This installs dependencies and **automatically registers** the extension with Raycast. You'll see "Propose Times" appear in Raycast immediately.
 
-> **What's happening:** `npm install` downloads the libraries it needs. `npm run build` compiles everything into a format Raycast can use.
-
-**Step 3: Import into Raycast**
-
-1. Open **Raycast** (your usual hotkey, or `⌘ + Space` → "Raycast")
-2. Press `⌘ + ,` to open **Preferences**
-3. Click the **Extensions** tab (left sidebar)
-4. Click the **+** button (bottom-left corner)
-5. Select **"Import Extension"**
-6. Navigate to the `propose-times` folder (it's in your home folder by default)
-7. Click **Open**
-
-Done! The extension is now installed permanently—no terminal needs to stay open.
+Once it's registered, you can press `Ctrl + C` to stop the dev server—the extension stays installed.
 
 ### Quick Access (Optional but Recommended)
 
@@ -136,11 +122,12 @@ Assign a keyboard shortcut so you can launch it instantly:
 - Install Node.js from [nodejs.org](https://nodejs.org)
 
 **Can't find the propose-times folder?**
-- By default, `git clone` puts it in your home folder. In Finder: `⌘ + ⇧ + H` → look for `propose-times`
+- If you downloaded the ZIP, it's in `~/Downloads/propose-times-main`
+- If you used `git clone`, it's in whichever folder you ran the command from
 
 **Extension not showing in Raycast?**
-- Make sure you ran `npm run build` before importing
-- Try removing and re-importing the extension
+- Make sure `npm run dev` completed without errors
+- Try running `npm run dev` again
 
 ---
 
