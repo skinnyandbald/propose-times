@@ -70,15 +70,29 @@ If you see a version number (like `v20.10.0`), you're good. If you see "command 
 
 **Step 1: Download the code**
 
-Open Terminal and run these commands (copy/paste each line, press Enter after each):
+**Option A: Download ZIP (easiest)**
 
+1. Go to [github.com/skinnyandbald/propose-times](https://github.com/skinnyandbald/propose-times)
+2. Click the green **"Code"** button
+3. Click **"Download ZIP"**
+4. Unzip the downloaded file (double-click it)
+5. Rename the folder from `propose-times-main` to `propose-times` (optional but cleaner)
+
+**Option B: Use git (if you have it)**
+
+Open Terminal and run:
 ```bash
 git clone https://github.com/skinnyandbald/propose-times.git
 ```
 
+**Step 2: Build the extension**
+
+Open Terminal, navigate to the folder, and run the build commands:
+
 ```bash
-cd propose-times
+cd ~/Downloads/propose-times
 ```
+(adjust the path if you put it somewhere else)
 
 ```bash
 npm install
@@ -88,9 +102,9 @@ npm install
 npm run build
 ```
 
-> **What's happening:** `git clone` downloads the code. `npm install` downloads the libraries it needs. `npm run build` compiles everything into a format Raycast can use.
+> **What's happening:** `npm install` downloads the libraries it needs. `npm run build` compiles everything into a format Raycast can use.
 
-**Step 2: Import into Raycast**
+**Step 3: Import into Raycast**
 
 1. Open **Raycast** (your usual hotkey, or `⌘ + Space` → "Raycast")
 2. Press `⌘ + ,` to open **Preferences**
