@@ -156,7 +156,7 @@ function normalizeDate(d: Date): Date {
 
 export default function Command() {
   const preferences = getPreferenceValues<Preferences>();
-  const defaultDays = parseInt(preferences.defaultDaysAhead) || 10;
+  const defaultDays = parseInt(preferences.defaultDaysAhead) || 4;
   const providerType = preferences.provider || "savvycal";
   const provider = getProvider(providerType);
   const config = getProviderConfig(preferences);
