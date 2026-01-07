@@ -51,7 +51,7 @@ describe("detectGaps", () => {
       slot("14:30"),
     ];
 
-    const gaps = detectGaps(slots, "UTC");
+    const gaps = detectGaps(slots);
 
     expect(gaps).toHaveLength(1);
     expect(gaps[0].start.toISOString()).toContain("10:00");
@@ -69,7 +69,7 @@ describe("detectGaps", () => {
       slot("14:00"),
     ];
 
-    const gaps = detectGaps(slots, "UTC");
+    const gaps = detectGaps(slots);
 
     expect(gaps).toHaveLength(2);
   });
@@ -82,18 +82,18 @@ describe("detectGaps", () => {
       slot("10:30"),
     ];
 
-    const gaps = detectGaps(slots, "UTC");
+    const gaps = detectGaps(slots);
 
     expect(gaps).toHaveLength(0);
   });
 
   it("returns empty array for single slot", () => {
-    const gaps = detectGaps([slot("09:00")], "UTC");
+    const gaps = detectGaps([slot("09:00")]);
     expect(gaps).toHaveLength(0);
   });
 
   it("returns empty array for empty input", () => {
-    const gaps = detectGaps([], "UTC");
+    const gaps = detectGaps([]);
     expect(gaps).toHaveLength(0);
   });
 
@@ -105,7 +105,7 @@ describe("detectGaps", () => {
       slot("09:30"),
     ];
 
-    const gaps = detectGaps(slots, "UTC");
+    const gaps = detectGaps(slots);
 
     expect(gaps).toHaveLength(1);
     expect(gaps[0].start.toISOString()).toContain("10:00");

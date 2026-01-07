@@ -16,9 +16,9 @@ interface ScoredSlot {
 
 /**
  * Get the time bucket for a slot based on hour of day in the target timezone.
- * - Morning: 6am - 12pm
+ * - Morning: before 12pm
  * - Afternoon: 12pm - 5pm
- * - Evening: 5pm - 9pm
+ * - Evening: 5pm onwards
  */
 function getTimeBucket(slot: TimeSlot, timezone: string): TimeBucket {
   const zonedDate = utcToZonedTime(new Date(slot.start_at), timezone);
@@ -35,7 +35,6 @@ function getTimeBucket(slot: TimeSlot, timezone: string): TimeBucket {
  */
 function detectGaps(
   slots: TimeSlot[],
-  timezone: string,
   incrementMinutes: number = 30,
 ): Gap[] {
   if (slots.length < 2) return [];
@@ -122,7 +121,7 @@ export function selectSmartSlots(
   }
 
   // Detect gaps (meetings)
-  const gaps = detectGaps(uniqueSlots, timezone);
+  const gaps = detectGaps(uniqueSlots);
 
   // Score all slots
   const scoredSlots: ScoredSlot[] = uniqueSlots.map((slot) => ({

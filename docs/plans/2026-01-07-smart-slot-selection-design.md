@@ -27,7 +27,7 @@ Currently, the extension shows the first 4 available slots per day, sorted chron
 
 Meetings are inferred by finding discontinuities in available slots:
 
-```
+```text
 Slots: 9:00, 9:30, 10:00, [GAP], 14:00, 14:30, 15:00
                          ↑
                   Meeting block (10:00-14:00)
@@ -48,7 +48,7 @@ Each slot is scored by proximity to the nearest gap edge:
 
 ### Selection Algorithm
 
-```
+```text
 function selectSmartSlots(daySlots, maxSlots = 4):
   1. Detect gaps in daySlots
   2. Score each slot by proximity to nearest gap
@@ -109,8 +109,8 @@ export function selectSmartSlots(
 ): TimeSlot[];
 
 // Internal helpers
-function detectGaps(slots: TimeSlot[], timezone: string): Gap[];
-function scoreSlotByProximity(slot: TimeSlot, gaps: Gap[], timezone: string): number;
+function detectGaps(slots: TimeSlot[]): Gap[];
+function scoreSlotByProximity(slot: TimeSlot, gaps: Gap[]): number;
 function getTimeBucket(slot: TimeSlot, timezone: string): 'morning' | 'afternoon' | 'evening';
 ```
 
