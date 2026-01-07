@@ -3,7 +3,10 @@
     "allow": [
       "WebFetch(domain:developers.raycast.com)",
       "WebFetch(domain:george.betterde.com)",
-      "Skill(superpowers:brainstorming)"
+      "Skill(superpowers:brainstorming)",
+      "WebFetch(domain:cal.com)",
+      "WebFetch(domain:savvycal.com)",
+      "WebFetch(domain:developers.savvycal.com)"
     ]
   }
 }
