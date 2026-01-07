@@ -13,6 +13,7 @@ import { useState, useEffect } from "react";
 import { format, addDays } from "date-fns";
 import { formatInTimeZone, utcToZonedTime } from "date-fns-tz";
 import { getProvider } from "./providers";
+import { selectSmartSlots } from "./slotSelection";
 import type { ProviderType, ProviderConfig, TimeSlot, LinkInfo } from "./types";
 
 interface Preferences {
@@ -113,11 +114,10 @@ function generateMessage(
     const zonedDate = utcToZonedTime(new Date(daySlots[0].start_at), timezone);
     const dayLabel = format(zonedDate, "EEE, MMM d");
 
-    // Sort slots by time and show up to 4 per day
-    const sortedSlots = [...daySlots].sort(
-      (a, b) => new Date(a.start_at).getTime() - new Date(b.start_at).getTime(),
-    );
-    const displaySlots = sortedSlots.slice(0, 4);
+    // Select up to 4 slots per day using smart selection:
+    // - Prioritizes slots adjacent to meetings (inferred from gaps)
+    // - Ensures at least one slot from a different time bucket for diversity
+    const displaySlots = selectSmartSlots(daySlots, timezone, 4);
 
     const slotStrings = displaySlots.map((slot) => {
       const timeStr = formatSlotTime(slot, timezone);
