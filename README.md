@@ -156,10 +156,13 @@ Choose your calendar provider in extension preferences:
 
 #### Common Settings
 
-| Setting | What it is |
-|---------|------------|
-| **Default Timezone** | Recipient's default timezone |
-| **Booker URL** | (Optional) Your SavvyCal-Booker deployment URL for one-click booking |
+| Setting | What it is | Default |
+|---------|------------|---------|
+| **Default Timezone** | Recipient's default timezone | Eastern |
+| **Default Days Ahead** | How many days to search for availability | 10 |
+| **Max Days to Show** | Maximum days to include in the message | 3 |
+| **Max Slots Per Day** | Maximum time slots shown per day | 3 |
+| **Booker URL** | (Optional) Your deployment URL for one-click booking | — |
 
 ## One-Click Booking (Optional)
 
