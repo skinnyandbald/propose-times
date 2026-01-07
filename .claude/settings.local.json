@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:developers.raycast.com)",
+      "WebFetch(domain:george.betterde.com)",
+      "Skill(superpowers:brainstorming)"
+    ]
+  }
+}

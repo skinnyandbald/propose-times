@@ -20,10 +20,7 @@ interface SavvyCalLinksResponse {
   entries?: SchedulingLink[];
 }
 
-async function fetchLinkInfo(
-  token: string,
-  slug: string,
-): Promise<LinkInfo> {
+async function fetchLinkInfo(token: string, slug: string): Promise<LinkInfo> {
   const response = await fetch("https://api.savvycal.com/v1/links", {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -35,9 +32,7 @@ async function fetchLinkInfo(
   console.log("SavvyCal /v1/links response:", response.status);
 
   if (!response.ok) {
-    throw new Error(
-      `SavvyCal API error fetching links: ${response.status}`,
-    );
+    throw new Error(`SavvyCal API error fetching links: ${response.status}`);
   }
 
   let data: SavvyCalLinksResponse;
@@ -113,11 +108,15 @@ export const savvycalProvider: CalendarProvider = {
       throw new Error(`Invalid JSON from SavvyCal slots`);
     }
 
-    const rawSlots = Array.isArray(data) ? data : data.data || data.entries || [];
+    const rawSlots = Array.isArray(data)
+      ? data
+      : data.data || data.entries || [];
 
     // Normalize to our TimeSlot format, filtering out malformed slots
     const slots: TimeSlot[] = rawSlots
-      .filter((s: { start_at?: string; end_at?: string }) => s.start_at && s.end_at)
+      .filter(
+        (s: { start_at?: string; end_at?: string }) => s.start_at && s.end_at,
+      )
       .map((s: { start_at: string; end_at: string }) => ({
         start_at: s.start_at,
         end_at: s.end_at,

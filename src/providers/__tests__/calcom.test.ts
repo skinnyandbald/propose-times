@@ -26,7 +26,7 @@ describe("calcomProvider", () => {
       eventTypeResponse: unknown,
       slotsResponse: unknown,
       eventTypeOk = true,
-      slotsOk = true
+      slotsOk = true,
     ) {
       mockFetch
         .mockResolvedValueOnce({
@@ -44,13 +44,15 @@ describe("calcomProvider", () => {
     it("parses Cal.com slots response correctly", async () => {
       const eventTypeResponse = {
         status: "success",
-        data: [{
-          id: 123,
-          slug: "meeting",
-          title: "Meeting",
-          lengthInMinutes: 30,
-          lengthInMinutesOptions: [25, 45],
-        }],
+        data: [
+          {
+            id: 123,
+            slug: "meeting",
+            title: "Meeting",
+            lengthInMinutes: 30,
+            lengthInMinutesOptions: [25, 45],
+          },
+        ],
       };
       const slotsResponse = {
         status: "success",
@@ -65,7 +67,11 @@ describe("calcomProvider", () => {
 
       mockEventTypeAndSlots(eventTypeResponse, slotsResponse);
 
-      const result = await calcomProvider.fetchSlots(config, startDate, endDate);
+      const result = await calcomProvider.fetchSlots(
+        config,
+        startDate,
+        endDate,
+      );
 
       expect(result.slots).toHaveLength(3);
       expect(result.slots[0].start_at).toBe("2026-01-07T10:00:00Z");
@@ -76,12 +82,14 @@ describe("calcomProvider", () => {
     it("handles empty slots response", async () => {
       const eventTypeResponse = {
         status: "success",
-        data: [{
-          id: 123,
-          slug: "meeting",
-          title: "Meeting",
-          lengthInMinutes: 30,
-        }],
+        data: [
+          {
+            id: 123,
+            slug: "meeting",
+            title: "Meeting",
+            lengthInMinutes: 30,
+          },
+        ],
       };
       const slotsResponse = {
         status: "success",
@@ -90,7 +98,11 @@ describe("calcomProvider", () => {
 
       mockEventTypeAndSlots(eventTypeResponse, slotsResponse);
 
-      const result = await calcomProvider.fetchSlots(config, startDate, endDate);
+      const result = await calcomProvider.fetchSlots(
+        config,
+        startDate,
+        endDate,
+      );
 
       expect(result.slots).toHaveLength(0);
     });
@@ -98,12 +110,14 @@ describe("calcomProvider", () => {
     it("calculates end_at based on event type default duration", async () => {
       const eventTypeResponse = {
         status: "success",
-        data: [{
-          id: 123,
-          slug: "meeting",
-          title: "Meeting",
-          lengthInMinutes: 45, // 45-minute meetings
-        }],
+        data: [
+          {
+            id: 123,
+            slug: "meeting",
+            title: "Meeting",
+            lengthInMinutes: 45, // 45-minute meetings
+          },
+        ],
       };
       const slotsResponse = {
         status: "success",
@@ -114,7 +128,11 @@ describe("calcomProvider", () => {
 
       mockEventTypeAndSlots(eventTypeResponse, slotsResponse);
 
-      const result = await calcomProvider.fetchSlots(config, startDate, endDate);
+      const result = await calcomProvider.fetchSlots(
+        config,
+        startDate,
+        endDate,
+      );
 
       // End time should be 45 minutes after start
       expect(result.slots[0].end_at).toBe("2026-01-07T10:45:00.000Z");
@@ -123,13 +141,15 @@ describe("calcomProvider", () => {
     it("returns LinkInfo with durations from event type", async () => {
       const eventTypeResponse = {
         status: "success",
-        data: [{
-          id: 456,
-          slug: "meeting",
-          title: "Meeting",
-          lengthInMinutes: 25,
-          lengthInMinutesOptions: [25, 45],
-        }],
+        data: [
+          {
+            id: 456,
+            slug: "meeting",
+            title: "Meeting",
+            lengthInMinutes: 25,
+            lengthInMinutesOptions: [25, 45],
+          },
+        ],
       };
       const slotsResponse = {
         status: "success",
@@ -138,7 +158,11 @@ describe("calcomProvider", () => {
 
       mockEventTypeAndSlots(eventTypeResponse, slotsResponse);
 
-      const result = await calcomProvider.fetchSlots(config, startDate, endDate);
+      const result = await calcomProvider.fetchSlots(
+        config,
+        startDate,
+        endDate,
+      );
 
       expect(result.linkInfo.id).toBe("456");
       expect(result.linkInfo.slug).toBe("meeting");
@@ -149,13 +173,15 @@ describe("calcomProvider", () => {
     it("falls back to single duration when lengthInMinutesOptions not provided", async () => {
       const eventTypeResponse = {
         status: "success",
-        data: [{
-          id: 123,
-          slug: "meeting",
-          title: "Meeting",
-          lengthInMinutes: 60,
-          // No lengthInMinutesOptions
-        }],
+        data: [
+          {
+            id: 123,
+            slug: "meeting",
+            title: "Meeting",
+            lengthInMinutes: 60,
+            // No lengthInMinutesOptions
+          },
+        ],
       };
       const slotsResponse = {
         status: "success",
@@ -164,7 +190,11 @@ describe("calcomProvider", () => {
 
       mockEventTypeAndSlots(eventTypeResponse, slotsResponse);
 
-      const result = await calcomProvider.fetchSlots(config, startDate, endDate);
+      const result = await calcomProvider.fetchSlots(
+        config,
+        startDate,
+        endDate,
+      );
 
       expect(result.linkInfo.durations).toEqual([60]);
       expect(result.linkInfo.defaultDuration).toBe(60);
@@ -176,7 +206,7 @@ describe("calcomProvider", () => {
       };
 
       await expect(
-        calcomProvider.fetchSlots(badConfig, startDate, endDate)
+        calcomProvider.fetchSlots(badConfig, startDate, endDate),
       ).rejects.toThrow("Cal.com username and event slug are required");
     });
 
@@ -186,7 +216,7 @@ describe("calcomProvider", () => {
       };
 
       await expect(
-        calcomProvider.fetchSlots(badConfig, startDate, endDate)
+        calcomProvider.fetchSlots(badConfig, startDate, endDate),
       ).rejects.toThrow("Cal.com username and event slug are required");
     });
 
@@ -206,7 +236,7 @@ describe("calcomProvider", () => {
         });
 
       await expect(
-        calcomProvider.fetchSlots(config, startDate, endDate)
+        calcomProvider.fetchSlots(config, startDate, endDate),
       ).rejects.toThrow("Cal.com API error: 404 - Not found");
     });
 
@@ -226,7 +256,7 @@ describe("calcomProvider", () => {
         });
 
       await expect(
-        calcomProvider.fetchSlots(config, startDate, endDate)
+        calcomProvider.fetchSlots(config, startDate, endDate),
       ).rejects.toThrow("Invalid JSON from Cal.com");
     });
 
@@ -249,7 +279,7 @@ describe("calcomProvider", () => {
           headers: expect.objectContaining({
             "cal-api-version": "2024-06-14",
           }),
-        })
+        }),
       );
 
       // Second call is slots
@@ -260,7 +290,7 @@ describe("calcomProvider", () => {
           headers: expect.objectContaining({
             "cal-api-version": "2024-09-04",
           }),
-        })
+        }),
       );
     });
   });
@@ -288,7 +318,7 @@ describe("calcomProvider", () => {
         slot,
         "America/New_York",
         "https://booker.example.com",
-        30
+        30,
       );
 
       expect(url).toContain("https://booker.example.com/book?");
@@ -306,7 +336,7 @@ describe("calcomProvider", () => {
         slot,
         "America/New_York",
         undefined,
-        30
+        30,
       );
 
       expect(url).toContain("https://cal.com/testuser/meeting");

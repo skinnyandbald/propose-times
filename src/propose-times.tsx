@@ -172,14 +172,18 @@ export default function Command() {
   const [isLoading, setIsLoading] = useState(false);
   const [durations, setDurations] = useState<number[]>([25, 30, 45, 60]);
   const [selectedDuration, setSelectedDuration] = useState<string>("25");
-  const [linkInfo, setLinkInfo] = useState<LinkInfo | null>(null);
+  const [, setLinkInfo] = useState<LinkInfo | null>(null);
 
   // Fetch link info to get available durations
   useEffect(() => {
     const loadLinkInfo = async () => {
       try {
         // Use a small date range just to get link info
-        const result = await provider.fetchSlots(config, today, addDays(today, 1));
+        const result = await provider.fetchSlots(
+          config,
+          today,
+          addDays(today, 1),
+        );
         setLinkInfo(result.linkInfo);
         setDurations(result.linkInfo.durations);
         // Default to 25 if available, otherwise use the link's default

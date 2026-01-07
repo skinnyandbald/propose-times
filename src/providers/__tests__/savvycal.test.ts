@@ -27,7 +27,7 @@ describe("savvycalProvider", () => {
       linksResponse: unknown,
       slotsResponse: unknown,
       linksOk = true,
-      slotsOk = true
+      slotsOk = true,
     ) {
       mockFetch
         .mockResolvedValueOnce({
@@ -61,7 +61,7 @@ describe("savvycalProvider", () => {
 
       mockLinksAndSlots(linksResponse, slotsResponse);
 
-      const result = await savvycalProvider.fetchSlots(config, startDate, endDate);
+      await savvycalProvider.fetchSlots(config, startDate, endDate);
 
       // Verify both API calls were made
       expect(mockFetch).toHaveBeenCalledTimes(2);
@@ -72,12 +72,12 @@ describe("savvycalProvider", () => {
           headers: expect.objectContaining({
             Authorization: "Bearer pt_secret_test",
           }),
-        })
+        }),
       );
       expect(mockFetch).toHaveBeenNthCalledWith(
         2,
         expect.stringContaining("/v1/links/link_123/slots"),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -92,7 +92,11 @@ describe("savvycalProvider", () => {
 
       mockLinksAndSlots(linksResponse, slotsResponse);
 
-      const result = await savvycalProvider.fetchSlots(config, startDate, endDate);
+      const result = await savvycalProvider.fetchSlots(
+        config,
+        startDate,
+        endDate,
+      );
 
       expect(result.slots).toHaveLength(2);
       expect(result.slots[0]).toEqual({
@@ -113,7 +117,11 @@ describe("savvycalProvider", () => {
 
       mockLinksAndSlots(linksResponse, slotsResponse);
 
-      const result = await savvycalProvider.fetchSlots(config, startDate, endDate);
+      const result = await savvycalProvider.fetchSlots(
+        config,
+        startDate,
+        endDate,
+      );
 
       expect(result.slots).toHaveLength(1);
     });
@@ -128,7 +136,11 @@ describe("savvycalProvider", () => {
 
       mockLinksAndSlots(linksResponse, slotsResponse);
 
-      const result = await savvycalProvider.fetchSlots(config, startDate, endDate);
+      const result = await savvycalProvider.fetchSlots(
+        config,
+        startDate,
+        endDate,
+      );
 
       expect(result.linkInfo.id).toBe("link_456");
     });
@@ -149,7 +161,11 @@ describe("savvycalProvider", () => {
 
       mockLinksAndSlots(linksResponse, slotsResponse);
 
-      const result = await savvycalProvider.fetchSlots(config, startDate, endDate);
+      const result = await savvycalProvider.fetchSlots(
+        config,
+        startDate,
+        endDate,
+      );
 
       expect(result.linkInfo.durations).toEqual([15, 25, 45]);
       expect(result.linkInfo.defaultDuration).toBe(25);
@@ -163,7 +179,11 @@ describe("savvycalProvider", () => {
 
       mockLinksAndSlots(linksResponse, slotsResponse);
 
-      const result = await savvycalProvider.fetchSlots(config, startDate, endDate);
+      const result = await savvycalProvider.fetchSlots(
+        config,
+        startDate,
+        endDate,
+      );
 
       expect(result.linkInfo.durations).toEqual([30]);
       expect(result.linkInfo.defaultDuration).toBe(30);
@@ -175,7 +195,7 @@ describe("savvycalProvider", () => {
       };
 
       await expect(
-        savvycalProvider.fetchSlots(badConfig, startDate, endDate)
+        savvycalProvider.fetchSlots(badConfig, startDate, endDate),
       ).rejects.toThrow("SavvyCal token and link slug are required");
     });
 
@@ -185,7 +205,7 @@ describe("savvycalProvider", () => {
       };
 
       await expect(
-        savvycalProvider.fetchSlots(badConfig, startDate, endDate)
+        savvycalProvider.fetchSlots(badConfig, startDate, endDate),
       ).rejects.toThrow("SavvyCal token and link slug are required");
     });
 
@@ -201,7 +221,7 @@ describe("savvycalProvider", () => {
       });
 
       await expect(
-        savvycalProvider.fetchSlots(config, startDate, endDate)
+        savvycalProvider.fetchSlots(config, startDate, endDate),
       ).rejects.toThrow('No scheduling link found with slug "chat"');
     });
 
@@ -213,7 +233,7 @@ describe("savvycalProvider", () => {
       });
 
       await expect(
-        savvycalProvider.fetchSlots(config, startDate, endDate)
+        savvycalProvider.fetchSlots(config, startDate, endDate),
       ).rejects.toThrow("SavvyCal API error fetching links: 401");
     });
   });
@@ -242,7 +262,7 @@ describe("savvycalProvider", () => {
         slot,
         "America/New_York",
         "https://booker.example.com",
-        25
+        25,
       );
 
       expect(url).toContain("https://booker.example.com/book?");
@@ -259,7 +279,7 @@ describe("savvycalProvider", () => {
         slot,
         "America/New_York",
         undefined,
-        25
+        25,
       );
 
       expect(url).toContain("https://savvycal.com/testuser/chat");

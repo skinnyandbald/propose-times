@@ -60,17 +60,25 @@ export const calcomProvider: CalendarProvider = {
     let eventType: CalComEventType | null = null;
     if (eventTypeResponse.ok) {
       try {
-        const eventTypeData = (await eventTypeResponse.json()) as CalComEventTypesResponse;
+        const eventTypeData =
+          (await eventTypeResponse.json()) as CalComEventTypesResponse;
         if (eventTypeData.data && eventTypeData.data.length > 0) {
           eventType = eventTypeData.data[0];
-          console.log("Cal.com event type found:", eventType.title, "durations:", eventType.lengthInMinutesOptions);
+          console.log(
+            "Cal.com event type found:",
+            eventType.title,
+            "durations:",
+            eventType.lengthInMinutesOptions,
+          );
         }
       } catch (err) {
         console.log("Failed to parse event type response:", err);
       }
     } else {
       console.error("Failed to fetch event type:", eventTypeResponse.status);
-      throw new Error(`Could not fetch Cal.com event type details (status: ${eventTypeResponse.status}). Please check your username and event slug.`);
+      throw new Error(
+        `Could not fetch Cal.com event type details (status: ${eventTypeResponse.status}). Please check your username and event slug.`,
+      );
     }
 
     // Now fetch slots
@@ -92,14 +100,18 @@ export const calcomProvider: CalendarProvider = {
     console.log("Cal.com slots response:", response.status);
 
     if (!response.ok) {
-      throw new Error(`Cal.com API error: ${response.status} - ${responseText.slice(0, 200)}`);
+      throw new Error(
+        `Cal.com API error: ${response.status} - ${responseText.slice(0, 200)}`,
+      );
     }
 
     let data: CalComSlotsResponse;
     try {
       data = JSON.parse(responseText);
     } catch {
-      throw new Error(`Invalid JSON from Cal.com: ${responseText.slice(0, 200)}`);
+      throw new Error(
+        `Invalid JSON from Cal.com: ${responseText.slice(0, 200)}`,
+      );
     }
 
     // Get default duration from event type or fallback
@@ -116,7 +128,9 @@ export const calcomProvider: CalendarProvider = {
         // Cal.com returns { start: "2024-01-15T10:00:00Z" }
         const startTime = slot.start;
         // Calculate end time using actual default duration
-        const endTime = new Date(new Date(startTime).getTime() + defaultDuration * 60 * 1000).toISOString();
+        const endTime = new Date(
+          new Date(startTime).getTime() + defaultDuration * 60 * 1000,
+        ).toISOString();
         slots.push({
           start_at: startTime,
           end_at: endTime,
@@ -125,9 +139,11 @@ export const calcomProvider: CalendarProvider = {
     }
 
     // Build LinkInfo from event type data
-    const durations = eventType?.lengthInMinutesOptions && eventType.lengthInMinutesOptions.length > 0
-      ? eventType.lengthInMinutesOptions
-      : [defaultDuration]; // If no options, just use the single default duration
+    const durations =
+      eventType?.lengthInMinutesOptions &&
+      eventType.lengthInMinutesOptions.length > 0
+        ? eventType.lengthInMinutesOptions
+        : [defaultDuration]; // If no options, just use the single default duration
 
     const linkInfo: LinkInfo = {
       id: eventType?.id?.toString() || `${calcomUsername}/${calcomEventSlug}`,
@@ -149,7 +165,9 @@ export const calcomProvider: CalendarProvider = {
   ): string {
     const { calcomUsername, calcomEventSlug } = config;
     if (!calcomUsername || !calcomEventSlug) {
-      console.error("Cal.com username or event slug is missing for generating booking URL.");
+      console.error(
+        "Cal.com username or event slug is missing for generating booking URL.",
+      );
       return "https://cal.com";
     }
     const slotDate = new Date(slot.start_at);
