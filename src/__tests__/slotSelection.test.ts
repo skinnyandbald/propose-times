@@ -75,12 +75,7 @@ describe("detectGaps", () => {
   });
 
   it("returns empty array when no gaps", () => {
-    const slots = [
-      slot("09:00"),
-      slot("09:30"),
-      slot("10:00"),
-      slot("10:30"),
-    ];
+    const slots = [slot("09:00"), slot("09:30"), slot("10:00"), slot("10:30")];
 
     const gaps = detectGaps(slots);
 
@@ -98,12 +93,7 @@ describe("detectGaps", () => {
   });
 
   it("handles unsorted slots", () => {
-    const slots = [
-      slot("14:00"),
-      slot("09:00"),
-      slot("10:00"),
-      slot("09:30"),
-    ];
+    const slots = [slot("14:00"), slot("09:00"), slot("10:00"), slot("09:30")];
 
     const gaps = detectGaps(slots);
 

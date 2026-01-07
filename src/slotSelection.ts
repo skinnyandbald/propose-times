@@ -33,10 +33,7 @@ function getTimeBucket(slot: TimeSlot, timezone: string): TimeBucket {
  * Detect gaps in available slots that likely indicate meetings.
  * A gap is when consecutive slots are more than the expected increment apart.
  */
-function detectGaps(
-  slots: TimeSlot[],
-  incrementMinutes: number = 30,
-): Gap[] {
+function detectGaps(slots: TimeSlot[], incrementMinutes: number = 30): Gap[] {
   if (slots.length < 2) return [];
 
   // Sort slots chronologically

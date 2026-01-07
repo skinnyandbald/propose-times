@@ -230,9 +230,11 @@ export default function Command() {
 
       const duration = parseInt(selectedDuration);
       const parsedMaxDays = parseInt(preferences.maxDaysToShow);
-      const maxDays = !isNaN(parsedMaxDays) && parsedMaxDays > 0 ? parsedMaxDays : 3;
+      const maxDays =
+        !isNaN(parsedMaxDays) && parsedMaxDays > 0 ? parsedMaxDays : 3;
       const parsedMaxSlots = parseInt(preferences.maxSlotsPerDay);
-      const maxSlotsPerDay = !isNaN(parsedMaxSlots) && parsedMaxSlots > 0 ? parsedMaxSlots : 3;
+      const maxSlotsPerDay =
+        !isNaN(parsedMaxSlots) && parsedMaxSlots > 0 ? parsedMaxSlots : 3;
 
       const htmlMessage = generateMessage(
         result.slots,
