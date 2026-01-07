@@ -145,7 +145,7 @@ function generateMessage(
 
   lines.push("");
   lines.push(
-    `Feel free to use this booking page if that's easier (also contains more availabilities):`,
+    `Feel free to use this booking page (contains more availabilities):`,
   );
   lines.push(provider.getFallbackUrl(config));
 
