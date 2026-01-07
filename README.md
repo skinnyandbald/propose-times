@@ -52,27 +52,88 @@ Each time is a link. Click → booking form → done.
 
 ---
 
-## Setup
+## Installation
+
+This extension isn't in the Raycast Store (yet), so you'll install it as a "Developer Extension." Don't worry—it's straightforward.
+
+### Prerequisites
+
+You'll need **Node.js** installed on your Mac. To check if you have it:
+
+1. Open **Terminal** (press `⌘ + Space`, type "Terminal", hit Enter)
+2. Type `node --version` and press Enter
+
+If you see a version number (like `v20.10.0`), you're good. If you see "command not found":
+- 🔗 [Download Node.js](https://nodejs.org) — choose the "LTS" version, run the installer
+
+### Step-by-Step Installation
+
+**Step 1: Download the code**
+
+Open Terminal and run these commands (copy/paste each line, press Enter after each):
 
 ```bash
 git clone https://github.com/skinnyandbald/propose-times.git
+```
+
+```bash
 cd propose-times
+```
+
+```bash
 npm install
+```
+
+```bash
 npm run build
 ```
 
-Then in Raycast: **Preferences → Extensions → + → Import Extension** → select the folder.
+> **What's happening:** `git clone` downloads the code. `npm install` downloads the libraries it needs. `npm run build` compiles everything into a format Raycast can use.
 
-That's it. No terminal running in the background—it's installed like any other Raycast extension.
+**Step 2: Import into Raycast**
 
-**Tip:** Assign a hotkey for quick access. In Raycast, search "Propose Times" → `⌘ + K` → Configure Command → set a Hotkey (e.g., `⌘ + ⇧ + P`).
+1. Open **Raycast** (your usual hotkey, or `⌘ + Space` → "Raycast")
+2. Press `⌘ + ,` to open **Preferences**
+3. Click the **Extensions** tab (left sidebar)
+4. Click the **+** button (bottom-left corner)
+5. Select **"Import Extension"**
+6. Navigate to the `propose-times` folder (it's in your home folder by default)
+7. Click **Open**
 
-### Development
+Done! The extension is now installed permanently—no terminal needs to stay open.
 
-If you want to make changes:
+### Quick Access (Optional but Recommended)
+
+Assign a keyboard shortcut so you can launch it instantly:
+
+1. In Raycast, search for "Propose Times"
+2. Press `⌘ + K` to open the action menu
+3. Select **Configure Command**
+4. Set a **Hotkey** (e.g., `⌘ + ⇧ + P`)
+
+### Troubleshooting
+
+**"git: command not found"**
+- Install Xcode Command Line Tools: open Terminal, run `xcode-select --install`
+
+**"npm: command not found"**
+- Install Node.js from [nodejs.org](https://nodejs.org)
+
+**Can't find the propose-times folder?**
+- By default, `git clone` puts it in your home folder. In Finder: `⌘ + ⇧ + H` → look for `propose-times`
+
+**Extension not showing in Raycast?**
+- Make sure you ran `npm run build` before importing
+- Try removing and re-importing the extension
+
+---
+
+## Development
+
+If you want to make changes to the extension:
 
 ```bash
-npm run dev  # Hot-reloads, but terminal must stay open
+npm run dev  # Hot-reloads changes, but terminal must stay open
 ```
 
 ### Configuration
