@@ -4,7 +4,8 @@ A Raycast extension that pulls your SavvyCal or Cal.com availability and generat
 
 **Smart scheduling:** Times are batched around your existing meetings (not scattered randomly throughout the day), and your scheduling preferences (buffer times, working hours, etc.) are automatically respected.
 
-<img width="1598" height="566" alt="image" src="https://github.com/user-attachments/assets/4fa773cb-257c-4a6a-b9f4-de24e125916c" />
+<img width="1598" height="566" alt="Frame 2" src="https://github.com/user-attachments/assets/b7689fc3-6647-4035-beaa-4c3bcbda189e" />
+
 
 **Works with [SavvyCal-Booker](https://github.com/skinnyandbald/savvycal-booker)** for true one-click booking (optional).
 
