@@ -91,9 +91,6 @@ function formatSlotTime(slot: TimeSlot, timezone: string): string {
   ).toLowerCase();
 }
 
-// Number of smart-selected slots to include in dropdown (more than displayed)
-const MAX_ALTERNATIVE_SLOTS = 10;
-
 function generateMessage(
   slots: TimeSlot[],
   timezone: string,
@@ -122,15 +119,7 @@ function generateMessage(
     const zonedDate = utcToZonedTime(new Date(daySlots[0].start_at), timezone);
     const dayLabel = format(zonedDate, "EEE, MMM d");
 
-    // Get expanded set of smart slots for the dropdown (up to 10)
-    // These are still batching-optimized but give the recipient more options
-    const alternativeSlots = selectSmartSlots(
-      daySlots,
-      timezone,
-      MAX_ALTERNATIVE_SLOTS,
-    );
-
-    // Select slots to DISPLAY in the message (fewer for cleaner UX)
+    // Select slots to DISPLAY in the message
     // - Prioritizes slots adjacent to meetings (inferred from gaps)
     // - Ensures at least one slot from a different time bucket for diversity
     const displaySlots = selectSmartSlots(daySlots, timezone, maxSlotsPerDay);
@@ -138,7 +127,8 @@ function generateMessage(
     const slotStrings = displaySlots.map((slot) => {
       const timeStr = formatSlotTime(slot, timezone);
       if (clickableSlots) {
-        // Pass all alternative slots for this day to enable dropdown in booker
+        // Pass all displayed slots for this day to enable dropdown in booker
+        // This lets recipient choose any of the suggested times, not just the clicked one
         const link = provider.generateBookingUrl(
           config,
           linkInfo,
@@ -146,7 +136,7 @@ function generateMessage(
           timezone,
           bookerUrl,
           duration,
-          alternativeSlots,
+          displaySlots,
         );
         return `<a href="${link}">${timeStr}</a>`;
       }
