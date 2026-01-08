@@ -6,7 +6,13 @@
       "Skill(superpowers:brainstorming)",
       "WebFetch(domain:cal.com)",
       "WebFetch(domain:savvycal.com)",
-      "WebFetch(domain:developers.savvycal.com)"
+      "WebFetch(domain:developers.savvycal.com)",
+      "mcp__plugin_compound-engineering_pw__browser_navigate",
+      "mcp__plugin_compound-engineering_pw__browser_take_screenshot",
+      "mcp__plugin_compound-engineering_pw__browser_click",
+      "mcp__plugin_compound-engineering_pw__browser_close",
+      "WebFetch(domain:dev.savvycal.com)",
+      "WebFetch(domain:changelog.savvycal.com)"
     ]
   }
 }
