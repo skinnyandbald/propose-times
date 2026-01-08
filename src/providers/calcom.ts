@@ -162,6 +162,7 @@ export const calcomProvider: CalendarProvider = {
     timezone: string,
     bookerUrl: string | undefined,
     duration: number,
+    alternativeSlots?: TimeSlot[],
   ): string {
     const { calcomUsername, calcomEventSlug } = config;
     if (!calcomUsername || !calcomEventSlug) {
@@ -182,6 +183,15 @@ export const calcomProvider: CalendarProvider = {
         tz: timezone,
         provider: "calcom",
       });
+
+      // Encode alternative slots as unix timestamps (compact format)
+      if (alternativeSlots && alternativeSlots.length > 0) {
+        const altTimestamps = alternativeSlots
+          .map((s) => Math.floor(new Date(s.start_at).getTime() / 1000))
+          .join(",");
+        params.set("alt_slots", altTimestamps);
+      }
+
       return `${bookerUrl}/book?${params.toString()}`;
     }
 
