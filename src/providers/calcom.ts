@@ -6,6 +6,7 @@ import type {
   LinkInfo,
   FetchSlotsResult,
 } from "../types";
+import { encodeAlternativeSlots } from "../utils";
 
 interface CalComSlot {
   start: string;
@@ -184,13 +185,8 @@ export const calcomProvider: CalendarProvider = {
         provider: "calcom",
       });
 
-      // Encode alternative slots as unix timestamps (compact format)
-      if (alternativeSlots && alternativeSlots.length > 0) {
-        const altTimestamps = alternativeSlots
-          .map((s) => Math.floor(new Date(s.start_at).getTime() / 1000))
-          .join(",");
-        params.set("alt_slots", altTimestamps);
-      }
+      // Encode alternative slots for the booking dropdown
+      encodeAlternativeSlots(params, alternativeSlots);
 
       return `${bookerUrl}/book?${params.toString()}`;
     }
